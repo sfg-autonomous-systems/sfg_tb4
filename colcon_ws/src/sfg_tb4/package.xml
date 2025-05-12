@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+    <name>sfg_tb4</name>
+    <version>0.0.0</version>
+    <description>The TurtleBot4 package responsible for interfacing with sensors and actuators.</description>
+    <maintainer email="matthias.brandel@hs-esslingen.de">Matthias Brandel</maintainer>
+    <license>MIT</license>
+
+    <buildtool_depend>ament_cmake</buildtool_depend>
+
+    <exec_depend>diagnostic_aggregator</exec_depend>
+    <exec_depend>isaac_ros_h264_encoder</exec_depend>
+    <exec_depend>isaac_ros_jetson_stats</exec_depend>
+    <exec_depend>rclcpp_components</exec_depend>
+    <exec_depend>realsense2_camera</exec_depend>
+    <exec_depend>ros2launch</exec_depend>
+    <exec_depend>sfg_agent</exec_depend>
+    <exec_depend>sfg_utils</exec_depend>
+
+    <test_depend>ament_lint_auto</test_depend>
+    <test_depend>ament_lint_common</test_depend>
+
+    <export>
+        <build_type>ament_cmake</build_type>
+    </export>
+</package>
