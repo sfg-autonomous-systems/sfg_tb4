@@ -115,11 +115,14 @@ configure_ethernet_interface() {
 }
 
 set_up_lidar_interface() {
-    print_info "> Setting up lidar ethernet interface."
+    local START_TEXT="> Setting up lidar ethernet interface."
+    local END_TEXT="< Done setting up lidar ethernet interface."
+
+    print_info "${START_TEXT}"
     local target_interface_ip="192.168.1.18/24"
     local interface_name=$(find_ethernet_interface "PCI" "lidar")
     configure_ethernet_interface "${interface_name}" "${target_interface_ip}" "lidar"
-    print_info "< Done setting up lidar ethernet interface."
+    print_info "${END_TEXT}"
 }
 
 set_up_lidar_interface

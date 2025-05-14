@@ -5,7 +5,7 @@ from ament_index_python.packages import get_package_share_directory
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution
-from launch_ros.actions import ComposableNodeContainer
+from launch_ros.actions import ComposableNodeContainer, Node
 from launch_ros.descriptions import ComposableNode
 from launch_ros.substitutions import FindPackageShare
 from sfg_utils import get_agent_name, sanitize_agent_name
@@ -49,6 +49,33 @@ def generate_launch_description():
                     },
                 ],
                 extra_arguments=[{"use_intra_process_comms": True}],
+            ),
+            ComposableNode(
+                package="sfg_depthai",
+                plugin="sfg_depthai::Camera",
+                namespace=local_namespace,
+                name="camera_head",
+                parameters=[
+                    package_directory / "config" / "camera_head.yaml",
+                ],
+                remappings=[
+                    (
+                        "camera_head/depth/image_raw/compressedDepth",
+                        f"{global_namespace}/camera_head/depth_compressed",
+                    ),
+                    (
+                        "camera_head/depth/camera_info",
+                        f"{global_namespace}/camera_head/depth/camera_info",
+                    ),
+                    (
+                        "camera_head/color/image_raw/ffmpeg",
+                        f"{global_namespace}/camera_head/color_compressed",
+                    ),
+                    (
+                        "camera_head/color/camera_info",
+                        f"{global_namespace}/camera_head/color/camera_info",
+                    ),
+                ],
             ),
             ComposableNode(
                 package="livox_ros_driver2",

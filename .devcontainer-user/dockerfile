@@ -1,7 +1,26 @@
 FROM devcontainer AS tb4
 
-# dockerfile-utils: ignore
 WORKDIR "${WORKSPACE_DIRECTORY}/dependencies"
+
+# DepthAI ROS
+RUN --mount=type=cache,id=apt_cache_devcontainer,target="/var/cache/apt" \
+    sudo apt update && sudo apt install -y --no-install-recommends \
+        ros-${ROS_DISTRO}-depthai-ros && \
+    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/*"
+
+# iRobot Create
+RUN sudo apt update && sudo apt install -y \
+        curl \
+        gnupg2 \
+        lsb-release && \
+    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/*" && \
+    sudo curl -sSL "https://raw.githubusercontent.com/ros/rosdistro/master/ros.key" -o "/usr/share/keyrings/ros-archive-keyring.gpg" && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | sudo tee -a "/etc/apt/sources.list.d/ros2.list"
+
+RUN --mount=type=cache,id=apt_cache_devcontainer,target="/var/cache/apt" \
+    sudo apt update && sudo apt install -y --no-install-recommends \
+        ros-${ROS_DISTRO}-irobot-create-msgs && \
+    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/*" 
 
 # Livox SDK2
 RUN git clone --depth 1 "https://github.com/Livox-SDK/Livox-SDK2.git" && \
@@ -14,6 +33,7 @@ RUN git clone --depth 1 "https://github.com/Livox-SDK/Livox-SDK2.git" && \
 # Livox ROS Driver 2
 RUN sudo apt update && sudo apt install -y --no-install-recommends \
         ros-${ROS_DISTRO}-pcl-conversions && \
+    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/*" && \
     \
     git clone "https://github.com/Livox-SDK/livox_ros_driver2.git" && cd "livox_ros_driver2" && \
     # This package tries to aim for compatibility with ROS1 and ROS2 and (as a result) fails
@@ -32,21 +52,13 @@ RUN sudo apt update && sudo apt install -y --no-install-recommends \
     # Install the package.
     cd ".." && sudo apt install -y ./*.deb && rm ./*.deb
 
-# Add the Open Robotics GPG key and ROS 2 repository
-RUN sudo apt update && sudo apt install -y curl gnupg2 lsb-release && \
-    sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg && \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | sudo tee -a /etc/apt/sources.list.d/ros2.list && \
-    sudo apt update
-
 
 # Isaac ROS packages
 RUN --mount=type=cache,id=apt_cache_devcontainer,target="/var/cache/apt" \
     sudo apt update && sudo apt install -y --no-install-recommends \
         ros-${ROS_DISTRO}-isaac-ros-h264-decoder \
         ros-${ROS_DISTRO}-isaac-ros-h264-encoder \
-        ros-${ROS_DISTRO}-isaac-ros-jetson-stats \
-        ros-${ROS_DISTRO}-irobot-create-msgs \
-        ros-${ROS_DISTRO}-depthai-ros && \
+        ros-${ROS_DISTRO}-isaac-ros-jetson-stats && \
     sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/*"
 
 RUN sudo rm -rf "${WORKSPACE_DIRECTORY}/dependencies"

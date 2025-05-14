@@ -1,17 +1,46 @@
 #!/usr/bin/env bash
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>"/dev/null" && pwd)
+
 source "${SCRIPT_DIR}/../.devcontainer/scripts/print_utils"
 
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
 set_up_usb_ethernet_interface() {
-    print_info "> Setting up usb ethernet interface."
-    sudo bash -c 'echo "192.168.186.3" > /opt/nvidia/l4t-usb-device-mode/IP_ADDRESS_FOR_CREATE3_ROBOT.conf'
-    sudo curl -o /opt/nvidia/l4t-usb-device-mode/nv-l4t-usb-device-mode-runtime-start.sh https://iroboteducation.github.io/create3_docs/setup/data/nv-l4t-usb-device-mode-runtime-start.sh
-    sudo chmod +x /opt/nvidia/l4t-usb-device-mode/nv-l4t-usb-device-mode-runtime-start.sh
-    print_info "< Done setting up usb ethernet ethernet interface."
+    local START_TEXT="> Setting up usb ethernet interface."
+    local END_TEXT="< Done setting up usb ethernet ethernet interface."
+
+    print_info "${START_TEXT}"
+    local IP_CONFIG_FILE="/opt/nvidia/l4t-usb-device-mode/IP_ADDRESS_FOR_CREATE3_ROBOT.conf"
+
+    if [ -f "${IP_CONFIG_FILE}" ]; then
+        print_info "USB ethernet interface setup skipped (IP config file exists)."
+        print_info "${END_TEXT}"
+        return 0
+    fi
+
+    sudo echo 192.168.186.3 >"${IP_CONFIG_FILE}"
+    sudo curl -o "/opt/nvidia/l4t-usb-device-mode/nv-l4t-usb-device-mode-runtime-start.sh" "https://iroboteducation.github.io/create3_docs/setup/data/nv-l4t-usb-device-mode-runtime-start.sh"
+    sudo chmod +x "/opt/nvidia/l4t-usb-device-mode/nv-l4t-usb-device-mode-runtime-start.sh"
+    print_info "${END_TEXT}"
+}
+
+set_up_udev_rules() {
+    local START_TEXT="> Setting up udev rules."
+    local END_TEXT="< Done setting up udev rules."
+
+    print_info "${START_TEXT}"
+    local OAKD_PRO_UDEV_FILE="/etc/udev/rules.d/80-movidius.rules"
+
+    if [ ! -f ${OAKD_PRO_UDEV_FILE} ]; then
+        print_plain "Adding udev rules for OAK-D Pro."
+        echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="03e7", MODE="0666"' | sudo tee "${OAKD_PRO_UDEV_FILE}" >"/dev/null"
+        sudo udevadm control --reload-rules && sudo udevadm trigger
+    fi
+
+    print_info "${END_TEXT}"
 }
 
 set_up_usb_ethernet_interface
+set_up_udev_rules
