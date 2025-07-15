@@ -1,29 +1,29 @@
 FROM isaac-ros AS tb4
 
-WORKDIR "${WORKSPACE_DIRECTORY}/dependencies"
+WORKDIR "~/dependencies"
 
 # DepthAI ROS
 RUN --mount=type=cache,id=apt_cache_devcontainer,target="/var/cache/apt" \
     sudo apt update && sudo apt install -y --no-install-recommends \
         ros-${ROS_DISTRO}-depthai-ros && \
-    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/*"
+    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/"*
 
 # iRobot Create
 RUN sudo apt update && sudo apt install -y \
         curl \
         gnupg2 \
         lsb-release && \
-    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/*" && \
+    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/"* && \
     sudo curl -sSL "https://raw.githubusercontent.com/ros/rosdistro/master/ros.key" -o "/usr/share/keyrings/ros-archive-keyring.gpg" && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | sudo tee -a "/etc/apt/sources.list.d/ros2.list"
 
 RUN --mount=type=cache,id=apt_cache_devcontainer,target="/var/cache/apt" \
     sudo apt update && sudo apt install -y --no-install-recommends \
         ros-${ROS_DISTRO}-irobot-create-msgs && \
-    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/*" 
+    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/"* 
 
 # Livox SDK2
-RUN git clone --depth 1 "https://github.com/Livox-SDK/Livox-SDK2.git" && \
+RUN git clone -b "v1.2.5" --depth 1 "https://github.com/Livox-SDK/Livox-SDK2.git" && \
     cd "Livox-SDK2" && \
     mkdir "build" && cd "build" && \
     cmake ".." && \
@@ -33,14 +33,11 @@ RUN git clone --depth 1 "https://github.com/Livox-SDK/Livox-SDK2.git" && \
 # Livox ROS Driver 2
 RUN sudo apt update && sudo apt install -y --no-install-recommends \
         ros-${ROS_DISTRO}-pcl-conversions && \
-    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/*" && \
+    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/"* && \
     \
-    git clone "https://github.com/Livox-SDK/livox_ros_driver2.git" && cd "livox_ros_driver2" && \
-    # This package tries to aim for compatibility with ROS1 and ROS2 and (as a result) fails
-    # to integrate seamlessly with the ROS build system. So we need to fix the package.xml...
-    mv "package_ROS2.xml" "package.xml" && \
-    # and the CMakeLists.txt.
-    sed -i 's/if(HUMBLE_ROS STREQUAL "humble")/if(DEFINED ENV{ROS_DISTRO} AND $ENV{ROS_DISTRO} STREQUAL "humble")/' "CMakeLists.txt" && \
+    rosdep update && \
+    git clone -b "main" --depth 1 "https://gitlab+deploy-token-28:gldt-Fnui4V-UxTzsHFDmgarX@gitlab.hs-esslingen.de/smart-factory-grids/autonomous-systems/tools/livox-ros-driver-2.git" "livox_ros_driver_2" && \
+    cd "livox_ros_driver_2" && \
     # Generate debian files.
     bloom-generate rosdebian && \
     # Use all cores for building.
@@ -50,8 +47,8 @@ RUN sudo apt update && sudo apt install -y --no-install-recommends \
     # Build the package.
     fakeroot "debian/rules" binary && \
     # Install the package.
-    cd ".." && sudo apt install -y ./*.deb && rm ./*.deb
-
+    cd ".." && sudo apt install -y "./"*".deb" && rm "./"*".deb" && \
+    sudo rm -rf "${HOME}/.ros/rosdep/"*
 
 # Isaac ROS packages
 RUN --mount=type=cache,id=apt_cache_devcontainer,target="/var/cache/apt" \
@@ -59,9 +56,9 @@ RUN --mount=type=cache,id=apt_cache_devcontainer,target="/var/cache/apt" \
         ros-${ROS_DISTRO}-isaac-ros-h264-decoder \
         ros-${ROS_DISTRO}-isaac-ros-h264-encoder \
         ros-${ROS_DISTRO}-isaac-ros-jetson-stats && \
-    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/*"
+    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/"*
 
-RUN sudo rm -rf "${WORKSPACE_DIRECTORY}/dependencies"
+RUN sudo rm -rf "~/dependencies"
 
 WORKDIR "${WORKSPACE_DIRECTORY}"
 
@@ -70,21 +67,27 @@ RUN sudo apt update && sudo apt install -y --no-install-recommends \
         ros-humble-turtlebot4-description \
         ros-humble-turtlebot4-msgs \
         ros-humble-turtlebot4-navigation \
-        ros-humble-turtlebot4-node
-        
-RUN mkdir -p ${WORKSPACE_DIRECTORY}/turtlebot4_ws/src && \
-    cd ${WORKSPACE_DIRECTORY}/turtlebot4_ws/src && \
-    git clone https://github.com/turtlebot/turtlebot4.git -b humble && \
-    git clone https://github.com/turtlebot/turtlebot4_robot.git 
+        ros-humble-turtlebot4-node && \
+    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/"*
 
-RUN cd ${WORKSPACE_DIRECTORY}/turtlebot4_ws && \
+RUN mkdir -p "${WORKSPACE_DIRECTORY}/turtlebot4_ws/src" && cd "${WORKSPACE_DIRECTORY}/turtlebot4_ws/src" && \
+    git clone -b "humble" --depth 1 "https://github.com/turtlebot/turtlebot4.git" && \
+    git clone -b "humble" --depth 1 "https://github.com/turtlebot/turtlebot4_robot.git" 
+
+RUN cd "${WORKSPACE_DIRECTORY}/turtlebot4_ws" && \
     rosdep update && \
-    rosdep install --from-path src -yi --rosdistro humble
+    rosdep install 
+    path "src" -yi --rosdistro humble
 
-RUN /bin/bash -c "source /opt/ros/humble/setup.bash && \
-    cd ${WORKSPACE_DIRECTORY}/turtlebot4_ws && \
-    colcon build --symlink-install"
+RUN source "/opt/ros/humble/setup.bash" && \
+    cd "${WORKSPACE_DIRECTORY}/turtlebot4_ws" && \
+    colcon build --symlink-install
 
-RUN echo "source ${WORKSPACE_DIRECTORY}/turtlebot4_ws/install/setup.bash" >> ~/.bashrc
+RUN echo "source ${WORKSPACE_DIRECTORY}/turtlebot4_ws/install/setup.bash" >> "/etc/bash.bashrc"
 
-
+CMD "${REPOSITORY_DIRECTORY}/.devcontainer/scripts/post_start_command" && \
+    source "/opt/ros/${ROS_DISTRO}/setup.bash" && \
+    cd "${REPOSITORY_DIRECTORY}/colcon_ws" && \
+    colcon build --symlink-install && \
+    source "install/setup.bash" && \
+    ros2 launch sfg_tb4 "tb4.launch.py"
