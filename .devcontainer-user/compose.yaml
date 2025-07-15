@@ -1,6 +1,0 @@
-name: tb4
-
-include:
-- path:
-    - "../.devcontainer/compose/compose.base.yaml"
-    - "../.devcontainer/compose/compose.${PLATFORM}.yaml"

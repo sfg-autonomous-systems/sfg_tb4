@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+sfg_tb4__initialize_command() {
+    local SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>"/dev/null" && pwd)
+    source "${SCRIPT_DIR}/../fast_dds_router/.devcontainer/scripts/initialize_command"
+    sfg_fast_dds_router__initialize_command LOCAL_WORKSPACE_DIRECTORY="${SCRIPT_DIR}/../fast_dds_router" CONTAINER_WORKSPACE_DIRECTORY="/workspaces"
+}
+
+sfg_tb4__set_up_usb_ethernet_interface() {
+    local SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>"/dev/null" && pwd)
+    source "${SCRIPT_DIR}/../.devcontainer/scripts/bash_utils/print_utils"
+
+    local START_TEXT="> Setting up usb ethernet interface."
+    local END_TEXT="< Done setting up usb ethernet ethernet interface."
+
+    sfg_bash_utils__print_info "${START_TEXT}"
+    local IP_CONFIG_FILE="/opt/nvidia/l4t-usb-device-mode/IP_ADDRESS_FOR_CREATE3_ROBOT.conf"
+
+    if [ -f "${IP_CONFIG_FILE}" ]; then
+        sfg_bash_utils__print_info "USB ethernet interface setup skipped (IP config file exists)."
+        sfg_bash_utils__print_info "${END_TEXT}"
+        return 0
+    fi
+
+    sudo echo 192.168.186.3 >"${IP_CONFIG_FILE}"
+    sudo curl -o "/opt/nvidia/l4t-usb-device-mode/nv-l4t-usb-device-mode-runtime-start.sh" "https://iroboteducation.github.io/create3_docs/setup/data/nv-l4t-usb-device-mode-runtime-start.sh"
+    sudo chmod +x "/opt/nvidia/l4t-usb-device-mode/nv-l4t-usb-device-mode-runtime-start.sh"
+    sfg_bash_utils__print_info "${END_TEXT}"
+}
+
+sfg_tb4__set_up_udev_rules() {
+    local SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>"/dev/null" && pwd)
+    source "${SCRIPT_DIR}/../.devcontainer/scripts/bash_utils/print_utils"
+
+    local START_TEXT="> Setting up udev rules."
+    local END_TEXT="< Done setting up udev rules."
+
+    sfg_bash_utils__print_info "${START_TEXT}"
+    local OAKD_PRO_UDEV_FILE="/etc/udev/rules.d/80-movidius.rules"
+
+    if [ ! -f ${OAKD_PRO_UDEV_FILE} ]; then
+        sfg_bash_utils__print_plain "Adding udev rules for OAK-D Pro."
+        echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="03e7", MODE="0666"' | sudo tee "${OAKD_PRO_UDEV_FILE}" >"/dev/null"
+        sudo udevadm control --reload-rules && sudo udevadm trigger
+    fi
+
+    sfg_bash_utils__print_info "${END_TEXT}"
+}
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    sfg_tb4__initialize_command "${@}"
+    sfg_tb4__set_up_usb_ethernet_interface "${@}"
+    sfg_tb4__set_up_udev_rules "${@}"
+fi
