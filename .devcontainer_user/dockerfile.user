@@ -1,6 +1,6 @@
 FROM isaac-ros AS tb4
 
-WORKDIR "~/dependencies"
+WORKDIR ~/dependencies
 
 # DepthAI ROS
 RUN --mount=type=cache,id=apt_cache_devcontainer,target="/var/cache/apt" \
@@ -58,9 +58,9 @@ RUN --mount=type=cache,id=apt_cache_devcontainer,target="/var/cache/apt" \
         ros-${ROS_DISTRO}-isaac-ros-jetson-stats && \
     sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/"*
 
-RUN sudo rm -rf "~/dependencies"
+RUN sudo rm -rf "${HOME}/dependencies"
 
-WORKDIR "${WORKSPACE_DIRECTORY}"
+WORKDIR ${WORKSPACE_DIRECTORY}
 
 # Turtlebot4 packages
 RUN sudo apt update && sudo apt install -y --no-install-recommends \
