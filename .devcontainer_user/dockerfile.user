@@ -76,7 +76,8 @@ RUN mkdir -p "${WORKSPACE_DIRECTORY}/turtlebot4_ws/src" && cd "${WORKSPACE_DIREC
 
 RUN cd "${WORKSPACE_DIRECTORY}/turtlebot4_ws" && \
     rosdep update && \
-    rosdep install --from-paths "src" -yi --rosdistro ${ROS_DISTRO}
+    rosdep install --from-paths "src" -yi --rosdistro ${ROS_DISTRO} && \
+    sudo rm -rf "${HOME}/.ros/rosdep/"*
 
 RUN source "/opt/ros/${ROS_DISTRO}/setup.bash" && \
     cd "${WORKSPACE_DIRECTORY}/turtlebot4_ws" && \
