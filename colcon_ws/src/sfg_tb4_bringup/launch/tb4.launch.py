@@ -10,7 +10,7 @@ from launch_ros.descriptions import ComposableNode
 from launch_ros.substitutions import FindPackageShare
 from sfg_utils import get_agent_name, sanitize_agent_name
 
-package_directory = Path(get_package_share_directory("sfg_tb4"))
+package_directory = Path(get_package_share_directory("sfg_tb4_bringup"))
 sanitized_hostname = sanitize_agent_name(get_agent_name())
 local_namespace = "/local"
 global_namespace = "/global/" + sanitized_hostname

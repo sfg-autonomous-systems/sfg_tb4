@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-    <name>sfg_tb4</name>
+    <name>sfg_tb4_bringup</name>
     <version>0.0.0</version>
     <description>The TurtleBot4 package responsible for interfacing with sensors and actuators.</description>
     <maintainer email="matthias.brandel@hs-esslingen.de">Matthias Brandel</maintainer>
