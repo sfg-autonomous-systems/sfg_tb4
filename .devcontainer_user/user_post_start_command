@@ -1,14 +1,10 @@
 #!/usr/bin/env bash
-#!/usr/bin/env bash
-SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>"/dev/null" && pwd)
-
-source "${SCRIPT_DIR}/../.devcontainer/scripts/print_utils"
 
 find_ethernet_interface() {
     local bus_type="$1"
     local found_interfaces=()
 
-    print_plain "Attempting to identify ${bus_type}-based ethernet interface..."
+    sfg_bash_utils__print_plain "Attempting to identify ${bus_type}-based ethernet interface..."
 
     for interface in "/sys/class/net/"*; do
         local interface_name=$(basename "${interface}")
@@ -42,14 +38,14 @@ find_ethernet_interface() {
     done
 
     if [[ ${#found_interfaces[@]} -eq 0 ]]; then
-        print_error "Failed to find a suitable ${bus_type} ethernet interface."
+        sfg_bash_utils__print_error "Failed to find a suitable ${bus_type} ethernet interface."
         return 1
     fi
 
     if [[ ${#found_interfaces[@]} -gt 1 ]]; then
-        print_warning "Found multiple potential ${bus_type} ethernet interfaces: $(printf '%s, ' "${found_interfaces[@]}" | sed 's/, $//'). Using ${found_interfaces[0]}."
+        sfg_bash_utils__print_warning "Found multiple potential ${bus_type} ethernet interfaces: $(printf '%s, ' "${found_interfaces[@]}" | sed 's/, $//'). Using ${found_interfaces[0]}."
     else
-        print_plain "Found ${bus_type} ethernet interface ${found_interfaces[0]}."
+        sfg_bash_utils__print_plain "Found ${bus_type} ethernet interface ${found_interfaces[0]}."
     fi
 
     echo "${found_interfaces[0]}"
@@ -65,14 +61,14 @@ rename_interface() {
 
         # Rename the interface.
         if ! sudo ip link set "${interface_name}" name "${target_interface_name}"; then
-            print_error "Failed to rename interface to ${target_interface_name}."
+            sfg_bash_utils__print_error "Failed to rename interface to ${target_interface_name}."
             return 1
         fi
 
-        print_plain "Renamed interface to ${target_interface_name}."
+        sfg_bash_utils__print_plain "Renamed interface to ${target_interface_name}."
         interface_name=${target_interface_name}
     else
-        print_plain "Interface is already named ${target_interface_name}."
+        sfg_bash_utils__print_plain "Interface is already named ${target_interface_name}."
     fi
 }
 
@@ -82,7 +78,7 @@ configure_ethernet_interface() {
     local target_interface_name="$3"
 
     if [[ -z "${interface_name}" ]]; then
-        print_error "Could not reliably identify an interface."
+        sfg_bash_utils__print_error "Could not reliably identify an interface."
         return 1
     fi
 
@@ -92,13 +88,13 @@ configure_ethernet_interface() {
 
         # Add IP address to the interface.
         if ! sudo ip addr add "${ip_address}" dev "${interface_name}"; then
-            print_error "Failed to add IP ${ip_address} to ${interface_name}."
+            sfg_bash_utils__print_error "Failed to add IP ${ip_address} to ${interface_name}."
             return 1
         fi
 
-        print_plain "Added IP address ${ip_address} to interface ${interface_name}."
+        sfg_bash_utils__print_plain "Added IP address ${ip_address} to interface ${interface_name}."
     else
-        print_plain "IP address ${ip_address} already exists on interface ${interface_name}."
+        sfg_bash_utils__print_plain "IP address ${ip_address} already exists on interface ${interface_name}."
     fi
 
     if rename_interface "${interface_name}" "${target_interface_name}"; then
@@ -107,7 +103,7 @@ configure_ethernet_interface() {
 
     # Bring the interface up.
     if ! sudo ip link set "${interface_name}" up; then
-        print_error "Failed to bring up interface ${interface_name}."
+        sfg_bash_utils__print_error "Failed to bring up interface ${interface_name}."
         return 1
     fi
 
@@ -115,14 +111,20 @@ configure_ethernet_interface() {
 }
 
 set_up_lidar_interface() {
+    SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>"/dev/null" && pwd)"
+    source "${SCRIPT_DIR}/../.devcontainer/scripts/bash_utils/print_utils"
+
     local START_TEXT="> Setting up lidar ethernet interface."
     local END_TEXT="< Done setting up lidar ethernet interface."
 
-    print_info "${START_TEXT}"
+    sfg_bash_utils__print_info "${START_TEXT}"
     local target_interface_ip="192.168.1.18/24"
     local interface_name=$(find_ethernet_interface "PCI" "lidar")
     configure_ethernet_interface "${interface_name}" "${target_interface_ip}" "lidar"
-    print_info "${END_TEXT}"
+    sfg_bash_utils__print_info "${END_TEXT}"
 }
 
-set_up_lidar_interface
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    set -e
+    set_up_lidar_interface "${@}"
+fi
