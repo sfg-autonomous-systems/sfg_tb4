@@ -1,6 +1,6 @@
 [submodule ".devcontainer"]
 	path = .devcontainer
-	url = ../../tools/isaac-ros-dev-container.git
+	url = ../../tools/agent-dev-container.git
 [submodule "colcon_ws/src/sfg_agent_common"]
 	path = colcon_ws/src/sfg_agent_common
 	url = ../agent-common.git

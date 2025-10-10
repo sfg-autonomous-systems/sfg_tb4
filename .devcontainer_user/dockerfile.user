@@ -1,4 +1,4 @@
-FROM isaac-ros AS tb4
+FROM sfg-agent-devcontainer AS sfg-tb4
 
 WORKDIR ${HOME}/dependencies
 
@@ -13,14 +13,12 @@ RUN sudo apt update && sudo apt install -y \
         curl \
         gnupg2 \
         lsb-release && \
-    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/"* && \
-    sudo curl -sSL "https://raw.githubusercontent.com/ros/rosdistro/master/ros.key" -o "/usr/share/keyrings/ros-archive-keyring.gpg" && \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | sudo tee -a "/etc/apt/sources.list.d/ros2.list"
+    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/"*
 
 RUN --mount=type=cache,id=apt_cache_devcontainer,target="/var/cache/apt" \
     sudo apt update && sudo apt install -y --no-install-recommends \
         ros-${ROS_DISTRO}-irobot-create-msgs && \
-    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/"* 
+    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/"*
 
 # Livox SDK2
 RUN git clone -b "v1.2.5" --depth 1 "https://github.com/Livox-SDK/Livox-SDK2.git" && \
@@ -50,14 +48,6 @@ RUN sudo apt update && sudo apt install -y --no-install-recommends \
     cd ".." && sudo apt install -y "./"*".deb" && rm "./"*".deb" && \
     sudo rm -rf "${HOME}/.ros/rosdep/"*
 
-# Isaac ROS packages
-RUN --mount=type=cache,id=apt_cache_devcontainer,target="/var/cache/apt" \
-    sudo apt update && sudo apt install -y --no-install-recommends \
-        ros-${ROS_DISTRO}-isaac-ros-h264-decoder \
-        ros-${ROS_DISTRO}-isaac-ros-h264-encoder \
-        ros-${ROS_DISTRO}-isaac-ros-jetson-stats && \
-    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/"*
-
 RUN sudo rm -rf "${HOME}/dependencies"
 
 WORKDIR ${WORKSPACE_DIRECTORY}
@@ -74,6 +64,8 @@ RUN mkdir -p "${WORKSPACE_DIRECTORY}/turtlebot4_ws/src" && cd "${WORKSPACE_DIREC
     git clone -b "${ROS_DISTRO}" --depth 1 "https://github.com/turtlebot/turtlebot4.git" && \
     git clone -b "${ROS_DISTRO}" --depth 1 "https://github.com/turtlebot/turtlebot4_robot.git" 
 
+RUN sudo apt update && sudo apt install -y libgpiod-dev
+
 RUN cd "${WORKSPACE_DIRECTORY}/turtlebot4_ws" && \
     rosdep update && \
     rosdep install --from-paths "src" -yi --rosdistro ${ROS_DISTRO} && \
@@ -83,7 +75,7 @@ RUN source "/opt/ros/${ROS_DISTRO}/setup.bash" && \
     cd "${WORKSPACE_DIRECTORY}/turtlebot4_ws" && \
     colcon build --symlink-install
 
-RUN echo "source ${WORKSPACE_DIRECTORY}/turtlebot4_ws/install/setup.bash" >> "/etc/bash.bashrc"
+RUN echo "source ${WORKSPACE_DIRECTORY}/turtlebot4_ws/install/setup.bash" | sudo tee -a /etc/bash.bashrc
 
 CMD "${REPOSITORY_DIRECTORY}/.devcontainer/scripts/post_start_command" && \
     source "/opt/ros/${ROS_DISTRO}/setup.bash" && \
