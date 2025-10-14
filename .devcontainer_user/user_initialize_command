@@ -22,7 +22,7 @@ sfg_tb4__set_up_usb_ethernet_interface() {
         return 0
     fi
 
-    sudo echo 192.168.186.3 >"${IP_CONFIG_FILE}"
+    sudo sh -c "echo 192.168.186.3 > '${IP_CONFIG_FILE}'"
     sudo curl -o "/opt/nvidia/l4t-usb-device-mode/nv-l4t-usb-device-mode-runtime-start.sh" "https://iroboteducation.github.io/create3_docs/setup/data/nv-l4t-usb-device-mode-runtime-start.sh"
     sudo chmod +x "/opt/nvidia/l4t-usb-device-mode/nv-l4t-usb-device-mode-runtime-start.sh"
     sfg_bash_utils__print_info "${END_TEXT}"
