@@ -2,13 +2,9 @@ from pathlib import Path
 
 import launch
 from ament_index_python.packages import get_package_share_directory
-from launch.actions import IncludeLaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import PathJoinSubstitution
-from launch_ros.actions import ComposableNodeContainer, Node
+from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
-from launch_ros.substitutions import FindPackageShare
-from sfg_utils import get_agent_name, sanitize_agent_name
+from sfg_utils.agent_utils import get_agent_name, sanitize_agent_name
 
 package_directory = Path(get_package_share_directory("sfg_tb4_bringup"))
 sanitized_hostname = sanitize_agent_name(get_agent_name())
@@ -17,20 +13,6 @@ global_namespace = "/global/" + sanitized_hostname
 
 
 def generate_launch_description():
-    jtop_launch_description = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            [
-                PathJoinSubstitution(
-                    [
-                        FindPackageShare("isaac_ros_jetson_stats"),
-                        "launch",
-                        "jtop.launch.py",
-                    ]
-                )
-            ]
-        ),
-    )
-
     tb4_container = ComposableNodeContainer(
         package="rclcpp_components",
         executable="component_container_mt",
@@ -61,7 +43,7 @@ def generate_launch_description():
                 remappings=[
                     (
                         "camera_head/depth/image_raw/compressedDepth",
-                        f"{global_namespace}/camera_head/depth/image_compressed"",
+                        f"{global_namespace}/camera_head/depth/image_compressed",
                     ),
                     (
                         "camera_head/depth/camera_info",
@@ -101,7 +83,6 @@ def generate_launch_description():
 
     return launch.LaunchDescription(
         [
-            jtop_launch_description,
             tb4_container,
         ]
     )
