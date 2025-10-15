@@ -1,4 +1,4 @@
-name: sfg-tb4
+name: ${PROJECT_NAME}
 
 include:
   - path:

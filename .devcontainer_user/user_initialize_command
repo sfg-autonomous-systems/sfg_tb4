@@ -1,35 +1,8 @@
 #!/usr/bin/env bash
 
-sfg_tb4__initialize_command() {
-    local SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>"/dev/null" && pwd)
-    source "${SCRIPT_DIR}/../fast_dds_router/.devcontainer/scripts/initialize_command"
-    sfg_fast_dds_router__initialize_command LOCAL_WORKSPACE_DIRECTORY="${SCRIPT_DIR}/../fast_dds_router" CONTAINER_WORKSPACE_DIRECTORY="/workspaces"
-}
-
-sfg_tb4__set_up_usb_ethernet_interface() {
-    local SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>"/dev/null" && pwd)
-    source "${SCRIPT_DIR}/../.devcontainer/scripts/bash_utils/print_utils"
-
-    local START_TEXT="> Setting up usb ethernet interface."
-    local END_TEXT="< Done setting up usb ethernet ethernet interface."
-
-    sfg_bash_utils__print_info "${START_TEXT}"
-    local IP_CONFIG_FILE="/opt/nvidia/l4t-usb-device-mode/IP_ADDRESS_FOR_CREATE3_ROBOT.conf"
-
-    if [ -f "${IP_CONFIG_FILE}" ]; then
-        sfg_bash_utils__print_info "USB ethernet interface setup skipped (IP config file exists)."
-        sfg_bash_utils__print_info "${END_TEXT}"
-        return 0
-    fi
-
-    sudo sh -c "echo 192.168.186.3 > '${IP_CONFIG_FILE}'"
-    sudo curl -o "/opt/nvidia/l4t-usb-device-mode/nv-l4t-usb-device-mode-runtime-start.sh" "https://iroboteducation.github.io/create3_docs/setup/data/nv-l4t-usb-device-mode-runtime-start.sh"
-    sudo chmod +x "/opt/nvidia/l4t-usb-device-mode/nv-l4t-usb-device-mode-runtime-start.sh"
-    sfg_bash_utils__print_info "${END_TEXT}"
-}
-
 sfg_tb4__set_up_udev_rules() {
-    local SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>"/dev/null" && pwd)
+    local SCRIPT_DIR
+    SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>"/dev/null" && pwd)
     source "${SCRIPT_DIR}/../.devcontainer/scripts/bash_utils/print_utils"
 
     local START_TEXT="> Setting up udev rules."
@@ -47,8 +20,44 @@ sfg_tb4__set_up_udev_rules() {
     sfg_bash_utils__print_info "${END_TEXT}"
 }
 
+sfg_tb4__configure_interface() {
+    local connection_type="${1}"
+    local connection_name="${2}"
+    local interface_name="${3}"
+    local args=("${@:4}")
+
+    local SCRIPT_DIR
+    SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>"/dev/null" && pwd)
+    source "${SCRIPT_DIR}/../.devcontainer/scripts/bash_utils/print_utils"
+
+    local start_text="> Setting up ${interface_name} ethernet interface for connection to ${connection_name}."
+    local end_text="< Done setting up ${interface_name} ethernet interface for connection to ${connection_name}."
+
+    sfg_bash_utils__print_info "${start_text}"
+
+    if ! nmcli connection show "${connection_name}" >"/dev/null" 2>&1; then
+        sudo nmcli connection add \
+            type "${connection_type}" \
+            con-name "${connection_name}" \
+            ifname "${interface_name}" \
+            "${args[@]}"
+        sudo nmcli connection up "${connection_name}"
+    else
+        sfg_bash_utils__print_plain "Connection already exists. Nothing needs to be done."
+    fi
+    
+    sfg_bash_utils__print_info "${end_text}"
+}
+
+sfg_tb4__initialize_command() {
+    local SCRIPT_DIR
+    SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>"/dev/null" && pwd)
+    source "${SCRIPT_DIR}/../fast_dds_router/.devcontainer/scripts/initialize_command"
+    sfg_tb4__set_up_udev_rules "${@}"
+    sfg_tb4__configure_interface "ethernet" "lidar" "enP8p1s0" "ip4" "192.168.1.18/24" "ipv4.method" "manual"
+    sfg_fast_dds_router__initialize_command LOCAL_WORKSPACE_DIRECTORY="${SCRIPT_DIR}/../fast_dds_router" CONTAINER_WORKSPACE_DIRECTORY="/workspaces"
+}
+
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     sfg_tb4__initialize_command "${@}"
-    sfg_tb4__set_up_usb_ethernet_interface "${@}"
-    sfg_tb4__set_up_udev_rules "${@}"
 fi
