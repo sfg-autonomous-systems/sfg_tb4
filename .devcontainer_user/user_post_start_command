@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 
-find_ethernet_interface() {
+sfg_tb4__find_ethernet_interface() {
     local bus_type="$1"
     local found_interfaces=()
 
     sfg_bash_utils__print_plain "Attempting to identify ${bus_type}-based ethernet interface..."
 
     for interface in "/sys/class/net/"*; do
-        local interface_name=$(basename "${interface}")
+        local interface_name
+        interface_name=$(basename "${interface}")
 
         local device_link="${interface}/device"
 
@@ -17,7 +18,8 @@ find_ethernet_interface() {
         fi
 
         # Resolve the device path.
-        local device_path=$(readlink -f "${device_link}")
+        local device_path
+        device_path=$(readlink -f "${device_link}")
 
         # Skip device if it's not of the requested bus type.
         if ! echo "${device_path}" | grep -q "/${bus_type,,}"; then
@@ -52,7 +54,7 @@ find_ethernet_interface() {
     return 0
 }
 
-rename_interface() {
+sfg_tb4__rename_interface() {
     local interface_name="${1}"
     local target_interface_name="${2}"
 
@@ -72,7 +74,7 @@ rename_interface() {
     fi
 }
 
-configure_ethernet_interface() {
+sfg_tb4__configure_ethernet_interface() {
     local interface_name="${1}"
     local ip_address="${2}"
     local target_interface_name="$3"
@@ -97,7 +99,7 @@ configure_ethernet_interface() {
         sfg_bash_utils__print_plain "IP address ${ip_address} already exists on interface ${interface_name}."
     fi
 
-    if rename_interface "${interface_name}" "${target_interface_name}"; then
+    if sfg_tb4__rename_interface "${interface_name}" "${target_interface_name}"; then
         interface_name="${target_interface_name}"
     fi
 
@@ -110,7 +112,7 @@ configure_ethernet_interface() {
     return 0
 }
 
-set_up_lidar_interface() {
+sfg_tb4__set_up_lidar_interface() {
     SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>"/dev/null" && pwd)"
     source "${SCRIPT_DIR}/../.devcontainer/scripts/bash_utils/print_utils"
 
@@ -119,12 +121,13 @@ set_up_lidar_interface() {
 
     sfg_bash_utils__print_info "${START_TEXT}"
     local target_interface_ip="192.168.1.18/24"
-    local interface_name=$(find_ethernet_interface "PCI" "lidar")
-    configure_ethernet_interface "${interface_name}" "${target_interface_ip}" "lidar"
+    local interface_name
+    interface_name=$(sfg_tb4__find_ethernet_interface "PCI" "lidar")
+    sfg_tb4__configure_ethernet_interface "${interface_name}" "${target_interface_ip}" "lidar"
     sfg_bash_utils__print_info "${END_TEXT}"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     set -e
-    set_up_lidar_interface "${@}"
+    sfg_tb4__set_up_lidar_interface "${@}"
 fi
