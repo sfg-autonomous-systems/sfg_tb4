@@ -1,6 +1,6 @@
 [submodule ".devcontainer"]
 	path = .devcontainer
-	url = ../../tools/agent-dev-container.git
+	url = ../agent-devcontainer.git
 [submodule "colcon_ws/src/sfg_agent_common"]
 	path = colcon_ws/src/sfg_agent_common
 	url = ../agent-common.git
