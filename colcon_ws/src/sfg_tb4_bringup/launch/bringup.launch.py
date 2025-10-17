@@ -1,88 +1,60 @@
-from pathlib import Path
-
 import launch
-from ament_index_python.packages import get_package_share_directory
+import sfg_utils.launch_utils
+from launch.actions import SetLaunchConfiguration
+from launch.substitutions import PathJoinSubstitution
 from launch_ros.actions import ComposableNodeContainer
-from launch_ros.descriptions import ComposableNode
-from sfg_utils.agent_utils import get_agent_name, sanitize_agent_name
+from launch_ros.substitutions import FindPackageShare
+from rospkg import get_package_name
+from sfg_utils.fqn import RosFqnBuilder, RosFqnSegment, Scope
 
-package_directory = Path(get_package_share_directory("sfg_tb4_bringup"))
-sanitized_hostname = sanitize_agent_name(get_agent_name())
-local_namespace = "/local"
-global_namespace = "/global/" + sanitized_hostname
+package_name = get_package_name(__file__)
+local_namespace, global_namespace = (
+    RosFqnBuilder()
+    .scope(Scope.Local)
+    .agent()
+    .build(begin=RosFqnSegment.Scope, end=RosFqnSegment.Agent),
+    RosFqnBuilder()
+    .scope(Scope.Global)
+    .agent()
+    .build(begin=RosFqnSegment.Scope, end=RosFqnSegment.Agent),
+)
 
 
 def generate_launch_description():
-    tb4_container = ComposableNodeContainer(
-        package="rclcpp_components",
-        executable="component_container_mt",
-        namespace=local_namespace,
-        name="tb4_container",
-        composable_node_descriptions=(
-            ComposableNode(
-                package="sfg_agent",
-                plugin="sfg_agent::AgentStatusProvider",
-                namespace=local_namespace,
-                parameters=[
-                    {
-                        "metadata_filepath": (
-                            package_directory / "config" / "agent_metadata.yaml"
-                        ).as_posix(),
-                    },
-                ],
-                extra_arguments=[{"use_intra_process_comms": True}],
-            ),
-            ComposableNode(
-                package="sfg_depthai",
-                plugin="sfg_depthai::Camera",
-                namespace=local_namespace,
-                name="camera_head",
-                parameters=[
-                    package_directory / "config" / "camera_head.yaml",
-                ],
-                remappings=[
-                    (
-                        "camera_head/depth/image_raw/compressedDepth",
-                        f"{global_namespace}/camera_head/depth/image_compressed",
-                    ),
-                    (
-                        "camera_head/depth/camera_info",
-                        f"{global_namespace}/camera_head/depth/camera_info",
-                    ),
-                    (
-                        "camera_head/color/image_raw/ffmpeg",
-                        f"{global_namespace}/camera_head/color/image_compressed",
-                    ),
-                    (
-                        "camera_head/color/camera_info",
-                        f"{global_namespace}/camera_head/color/camera_info",
-                    ),
-                ],
-            ),
-            ComposableNode(
-                package="livox_ros_driver2",
-                plugin="livox_ros::DriverNode",
-                namespace=local_namespace,
-                name="lidar_back",
-                parameters=[
-                    package_directory / "config" / "lidar_back.yaml",
-                    {
-                        "user_config_path": (
-                            package_directory / "config" / "lidar_back_config.json"
-                        ).as_posix(),
-                    },
-                ],
-                remappings=[
-                    ("livox/imu", f"{global_namespace}/lidar_back/imu"),
-                    ("livox/lidar", f"{global_namespace}/lidar_back/points"),
-                ],
-            ),
-        ),
-        output="screen",
+    agent_launch_description_entities = (
+        sfg_utils.launch_utils.get_launch_description_entities(
+            "sfg_agent",
+            "agent.launch.py",
+        )
+    )
+
+    hardware_interface_launch_description_entities = (
+        sfg_utils.launch_utils.get_launch_description_entities(
+            "sfg_tb4_hardware_interface",
+            "hardware_interface.launch.py",
+        )
     )
 
     return launch.LaunchDescription(
         [
-            tb4_container,
+            SetLaunchConfiguration(
+                "metadata_filepath",
+                PathJoinSubstitution(
+                    [FindPackageShare(package_name), "config", "agent_metadata.yaml"]
+                ),
+            ),
+            *agent_launch_description_entities.launch_arguments,
+            *hardware_interface_launch_description_entities.launch_arguments,
+            *agent_launch_description_entities.nodes,
+            *hardware_interface_launch_description_entities.nodes,
+            ComposableNodeContainer(
+                package="rclcpp_components",
+                executable="component_container_mt",
+                namespace=local_namespace,
+                name="bringup_container",
+                output="screen",
+                composable_node_descriptions=agent_launch_description_entities.composable_nodes
+                + hardware_interface_launch_description_entities.composable_nodes,
+            ),
         ]
     )
