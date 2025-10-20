@@ -31,6 +31,10 @@ Below instructions only work on our modified TB4s that include NVIDIA Jetson har
           <td>Beta Features/Set Wired Subnet/New Robot IP</td>
           <td><code>192.168.55.2</code></td>
         </tr>
+          <tr>
+          <td>Beta Features/Edit ntp.conf</td>
+          <td><code>server 192.168.50.1 prefer iburst minpoll 4 maxpoll 6</code></td>
+        </tr>
         <tr>
           <td>Beta Features/RMW Profile Override</td>
           <td>
@@ -46,7 +50,7 @@ Below instructions only work on our modified TB4s that include NVIDIA Jetson har
                         &lt;locator&gt;
                             &lt;udpv4&gt;
                                 &lt;address&gt;127.0.0.1&lt;/address&gt;
-                                &lt;address&gt;192.168.55.1&lt;/address&gt;
+                                &lt;address&gt;192.168.55.3&lt;/address&gt;
                             &lt;/udpv4&gt;
                         &lt;/locator&gt;
                     &lt;/initialPeersList&gt;

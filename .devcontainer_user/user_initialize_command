@@ -20,41 +20,60 @@ sfg_tb4__set_up_udev_rules() {
     sfg_bash_utils__print_info "${END_TEXT}"
 }
 
-sfg_tb4__configure_interface() {
-    local connection_type="${1}"
-    local connection_name="${2}"
-    local interface_name="${3}"
-    local args=("${@:4}")
-
+sfg_tb4__configure_create3_networking() {
     local SCRIPT_DIR
     SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>"/dev/null" && pwd)
     source "${SCRIPT_DIR}/../.devcontainer/scripts/bash_utils/print_utils"
 
-    local start_text="> Setting up ${interface_name} ethernet interface for connection to ${connection_name}."
-    local end_text="< Done setting up ${interface_name} ethernet interface for connection to ${connection_name}."
+    local START_TEXT="> Configuring Create 3 interface."
+    local END_TEXT="< Done configuring Create 3 interface."
 
-    sfg_bash_utils__print_info "${start_text}"
+    sfg_bash_utils__print_info "${START_TEXT}"
 
-    if ! nmcli connection show "${connection_name}" >"/dev/null" 2>&1; then
-        sudo nmcli connection add \
-            type "${connection_type}" \
-            con-name "${connection_name}" \
-            ifname "${interface_name}" \
-            "${args[@]}"
-        sudo nmcli connection up "${connection_name}"
-    else
-        sfg_bash_utils__print_plain "Connection already exists. Nothing needs to be done."
+    local MESSAGE="Would you like to configure networking for the Create 3 platform? [y/N] "
+    read -rp "${MESSAGE}" confirm
+
+    if [[ ! "${confirm}" == "y" ]]; then
+        sfg_bash_utils__print_info "${END_TEXT}"
+        return 0
     fi
-    
-    sfg_bash_utils__print_info "${end_text}"
+
+    sfg_bash_utils__print_plain "Ensuring netfilter-persistent is installed..."
+    sudo apt update
+    sudo apt install -y --no-install-recommends netfilter-persistent
+
+    sfg_bash_utils__print_info "Setting NVIDIA Jetson IP to 192.168.55.3 for the Create 3 platform..."
+    sudo sed -i 's/^net_ip=.*/net_ip=192.168.55.3/' "/opt/nvidia/l4t-usb-device-mode/nv-l4t-usb-device-mode-config.sh"
+
+    sfg_bash_utils__print_info "Ensuring IP forwarding is enabled permanently..."
+
+    if ! grep -q "^net.ipv4.ip_forward=1" "/etc/sysctl.conf"; then
+        echo "net.ipv4.ip_forward=1" | sudo tee -a "/etc/sysctl.conf"
+        # Apply the setting.
+        sudo sysctl -p
+    else
+        # If the setting is already there, ensure the kernel has it active now.
+        echo 1 | sudo tee "/proc/sys/net/ipv4/ip_forward" >"/dev/null"
+    fi
+
+    sfg_bash_utils__print_info "Applying firewall forwarding rules..."
+    sudo iptables -C FORWARD -i l4tbr0 -o wlP1p1s0 -j ACCEPT 2>"/dev/null" || sudo iptables -I FORWARD 1 -i l4tbr0 -o wlP1p1s0 -j ACCEPT
+    sudo iptables -C FORWARD -i wlP1p1s0 -o l4tbr0 -m state --state ESTABLISHED,RELATED -j ACCEPT 2>"/dev/null" || sudo iptables -I FORWARD 2 -i wlP1p1s0 -o l4tbr0 -m state --state ESTABLISHED,RELATED -j ACCEPT
+    sudo iptables -t nat -C POSTROUTING -o wlP1p1s0 -j MASQUERADE 2>"/dev/null" || sudo iptables -t nat -A POSTROUTING -o wlP1p1s0 -j MASQUERADE
+    sudo netfilter-persistent save
+
+    sfg_bash_utils__print_info "${END_TEXT}"
 }
 
 sfg_tb4__initialize_command() {
     local SCRIPT_DIR
     SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>"/dev/null" && pwd)
+    source "${SCRIPT_DIR}/../.devcontainer/scripts/bash_utils/configure_interface"
     source "${SCRIPT_DIR}/../fast_dds_router/.devcontainer/scripts/initialize_command"
+
     sfg_tb4__set_up_udev_rules "${@}"
-    sfg_tb4__configure_interface "ethernet" "lidar" "enP8p1s0" "ip4" "192.168.1.18/24" "ipv4.method" "manual"
+    sfg_tb4__configure_create3_networking
+    sfg_bash_utils__configure_interface "ethernet" "lidar" "enP8p1s0" "ip4" "192.168.1.18/24" "ipv4.method" "manual"
     sfg_fast_dds_router__initialize_command LOCAL_WORKSPACE_DIRECTORY="${SCRIPT_DIR}/../fast_dds_router" CONTAINER_WORKSPACE_DIRECTORY="/workspaces"
 }
 
