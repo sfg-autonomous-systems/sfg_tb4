@@ -5,7 +5,7 @@
 Below instructions only work on our modified TB4s that include NVIDIA Jetson hardware running this repository.
 
 1. Ensure the Create 3 platform is up-to-date by following the initial setup [here](https://edu.irobot.com/create3-setup).
-2. Configure the following settings via the Create 3's web-interface. Note that any other settings should remain at its respective default value.
+2. Configure the following settings via the Create 3's web-interface. Note that any other setting should remain at its respective default value.
 
     <table>
       <thead>
