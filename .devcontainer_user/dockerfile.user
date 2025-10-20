@@ -9,12 +9,6 @@ RUN --mount=type=cache,id=apt_cache_devcontainer,target="/var/cache/apt" \
     sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/"*
 
 # iRobot Create
-RUN sudo apt update && sudo apt install -y \
-        curl \
-        gnupg2 \
-        lsb-release && \
-    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/"*
-
 RUN --mount=type=cache,id=apt_cache_devcontainer,target="/var/cache/apt" \
     sudo apt update && sudo apt install -y --no-install-recommends \
         ros-${ROS_DISTRO}-irobot-create-msgs && \
@@ -23,10 +17,10 @@ RUN --mount=type=cache,id=apt_cache_devcontainer,target="/var/cache/apt" \
 # Livox SDK2
 RUN git clone -b "v1.2.5" --depth 1 "https://github.com/Livox-SDK/Livox-SDK2.git" && \
     cd "Livox-SDK2" && \
-    mkdir "build" && cd "build" && \
-    cmake ".." && \
-    make -j$(nproc) && \
-    sudo make install
+    cmake -B "build" \
+        -DCMAKE_BUILD_TYPE=Release && \
+    cmake --build "build" -j$(nproc) && \
+    sudo cmake --install "build" && sudo ldconfig
 
 # Livox ROS Driver 2
 RUN sudo apt update && sudo apt install -y --no-install-recommends \
@@ -52,34 +46,8 @@ RUN sudo rm -rf "${HOME}/dependencies"
 
 WORKDIR ${WORKSPACE_DIRECTORY}
 
-# Turtlebot4 packages
-RUN sudo apt update && sudo apt install -y --no-install-recommends \
-        ros-${ROS_DISTRO}-turtlebot4-description \
-        ros-${ROS_DISTRO}-turtlebot4-msgs \
-        ros-${ROS_DISTRO}-turtlebot4-navigation \
-        ros-${ROS_DISTRO}-turtlebot4-node && \
-    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/"*
-
-RUN mkdir -p "${WORKSPACE_DIRECTORY}/turtlebot4_ws/src" && cd "${WORKSPACE_DIRECTORY}/turtlebot4_ws/src" && \
-    git clone -b "${ROS_DISTRO}" --depth 1 "https://github.com/turtlebot/turtlebot4.git" && \
-    git clone -b "${ROS_DISTRO}" --depth 1 "https://github.com/turtlebot/turtlebot4_robot.git" 
-
-RUN sudo apt update && sudo apt install -y libgpiod-dev
-
-RUN cd "${WORKSPACE_DIRECTORY}/turtlebot4_ws" && \
-    rosdep update && \
-    rosdep install --from-paths "src" -yi --rosdistro ${ROS_DISTRO} && \
-    sudo rm -rf "${HOME}/.ros/rosdep/"*
-
-RUN source "/opt/ros/${ROS_DISTRO}/setup.bash" && \
-    cd "${WORKSPACE_DIRECTORY}/turtlebot4_ws" && \
-    colcon build --symlink-install
-
-RUN echo "source ${WORKSPACE_DIRECTORY}/turtlebot4_ws/install/setup.bash" | sudo tee -a /etc/bash.bashrc
-
 CMD "${REPOSITORY_DIRECTORY}/.devcontainer/scripts/post_start_command" && \
     source "/opt/ros/${ROS_DISTRO}/setup.bash" && \
     cd "${REPOSITORY_DIRECTORY}/colcon_ws" && \
-    colcon build --symlink-install && \
     source "install/setup.bash" && \
     ros2 launch sfg_tb4_bringup "bringup.launch.py"
