@@ -42,10 +42,10 @@ sfg_tb4__configure_create3_networking() {
     sudo apt update
     sudo apt install -y --no-install-recommends netfilter-persistent
 
-    sfg_bash_utils__print_info "Setting NVIDIA Jetson IP to 192.168.55.3 for the Create 3 platform..."
+    sfg_bash_utils__print_plain "Setting NVIDIA Jetson IP to 192.168.55.3 for the Create 3 platform..."
     sudo sed -i 's/^net_ip=.*/net_ip=192.168.55.3/' "/opt/nvidia/l4t-usb-device-mode/nv-l4t-usb-device-mode-config.sh"
 
-    sfg_bash_utils__print_info "Ensuring IP forwarding is enabled permanently..."
+    sfg_bash_utils__print_plain "Ensuring IP forwarding is enabled permanently..."
 
     if ! grep -q "^net.ipv4.ip_forward=1" "/etc/sysctl.conf"; then
         echo "net.ipv4.ip_forward=1" | sudo tee -a "/etc/sysctl.conf"
@@ -56,7 +56,7 @@ sfg_tb4__configure_create3_networking() {
         echo 1 | sudo tee "/proc/sys/net/ipv4/ip_forward" >"/dev/null"
     fi
 
-    sfg_bash_utils__print_info "Applying firewall forwarding rules..."
+    sfg_bash_utils__print_plain "Applying firewall forwarding rules..."
     sudo iptables -C FORWARD -i l4tbr0 -o wlP1p1s0 -j ACCEPT 2>"/dev/null" || sudo iptables -I FORWARD 1 -i l4tbr0 -o wlP1p1s0 -j ACCEPT
     sudo iptables -C FORWARD -i wlP1p1s0 -o l4tbr0 -m state --state ESTABLISHED,RELATED -j ACCEPT 2>"/dev/null" || sudo iptables -I FORWARD 2 -i wlP1p1s0 -o l4tbr0 -m state --state ESTABLISHED,RELATED -j ACCEPT
     sudo iptables -t nat -C POSTROUTING -o wlP1p1s0 -j MASQUERADE 2>"/dev/null" || sudo iptables -t nat -A POSTROUTING -o wlP1p1s0 -j MASQUERADE
