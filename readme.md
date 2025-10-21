@@ -39,25 +39,22 @@ Below instructions only work on our modified TB4s that include NVIDIA Jetson har
           <td>Beta Features/RMW Profile Override</td>
           <td>
             <pre><code>&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
-    &lt;profiles xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles"&gt;
-        &lt;participant profile_name="unicast_discovery" is_default_profile="true"&gt;
-            &lt;rtps&gt;
-                &lt;builtin&gt;
-                    &lt;metatrafficUnicastLocatorList&gt;
-                        &lt;locator/&gt;
-                    &lt;/metatrafficUnicastLocatorList&gt;
-                    &lt;initialPeersList&gt;
-                        &lt;locator&gt;
-                            &lt;udpv4&gt;
-                                &lt;address&gt;127.0.0.1&lt;/address&gt;
-                                &lt;address&gt;192.168.55.3&lt;/address&gt;
-                            &lt;/udpv4&gt;
-                        &lt;/locator&gt;
-                    &lt;/initialPeersList&gt;
-                &lt;/builtin&gt;
-            &lt;/rtps&gt;
-        &lt;/participant&gt;
-    &lt;/profiles&gt;</code></pre>
+   &lt;profiles xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles"&gt;
+     &lt;participant profile_name="profile" is_default_profile="true"&gt;
+       &lt;rtps&gt;
+        &lt;builtin&gt;
+          &lt;initialPeersList&gt;
+            &lt;locator&gt;
+              &lt;udpv4&gt;
+                &lt;address&gt;127.0.0.1&lt;/address&gt;
+                &lt;address&gt;192.168.55.3&lt;/address&gt;
+              &lt;/udpv4&gt;
+            &lt;/locator&gt;
+          &lt;/initialPeersList&gt;
+        &lt;/builtin&gt;
+       &lt;/rtps&gt;
+     &lt;/participant&gt;
+   &lt;/profiles&gt;</code></pre>
           </td>
         </tr>
       </tbody>
