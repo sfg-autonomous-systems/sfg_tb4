@@ -72,12 +72,10 @@ sfg_tb4__initialize_command() {
     local SCRIPT_DIR
     SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>"/dev/null" && pwd)
     source "${SCRIPT_DIR}/../.devcontainer/scripts/bash_utils/configure_interface"
-    source "${SCRIPT_DIR}/../fast_dds_router/.devcontainer/scripts/initialize_command"
 
     sfg_tb4__set_up_udev_rules
     sfg_tb4__configure_create3_networking
     sfg_bash_utils__configure_interface "ethernet" "lidar" "enP8p1s0" "ip4" "192.168.1.18/24" "ipv4.method" "manual"
-    sfg_fast_dds_router__initialize_command LOCAL_WORKSPACE_DIRECTORY="${SCRIPT_DIR}/../fast_dds_router" CONTAINER_WORKSPACE_DIRECTORY="/workspaces"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
