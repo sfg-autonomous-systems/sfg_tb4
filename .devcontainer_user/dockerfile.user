@@ -2,16 +2,16 @@ FROM sfg-agent-devcontainer AS sfg-tb4
 
 WORKDIR ${HOME}/dependencies
 
-# DepthAI ROS
-RUN --mount=type=cache,id=apt_cache_devcontainer,target="/var/cache/apt" \
-    sudo apt update && sudo apt install -y --no-install-recommends \
-        ros-${ROS_DISTRO}-depthai-ros && \
-    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/"*
-
 # iRobot Create
 RUN --mount=type=cache,id=apt_cache_devcontainer,target="/var/cache/apt" \
     sudo apt update && sudo apt install -y --no-install-recommends \
         ros-${ROS_DISTRO}-irobot-create-msgs && \
+    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/"*
+
+# DepthAI ROS
+RUN --mount=type=cache,id=apt_cache_devcontainer,target="/var/cache/apt" \
+    sudo apt update && sudo apt install -y --no-install-recommends \
+        ros-${ROS_DISTRO}-depthai-ros && \
     sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/"*
 
 # Livox SDK2
