@@ -27,63 +27,63 @@ local_namespace, global_namespace = (
 
 
 def generate_launch_description():
-    camera_head_fqn_builder = (
-        RosFqnBuilder().scope(Scope.Global).agent().component(Component.Camera, "head")
+    camera_back_fqn_builder = (
+        RosFqnBuilder().scope(Scope.Global).agent().component(Component.Camera, "back")
     )
-    camera_head_name = camera_head_fqn_builder.build(RosFqnSegment.Component)
-    camera_head_node = ComposableNode(
+    camera_back_name = camera_back_fqn_builder.build(RosFqnSegment.Component)
+    camera_back_node = ComposableNode(
         package="sfg_depthai",
         plugin="sfg_depthai::Camera",
         namespace=local_namespace,
-        name=camera_head_name,
+        name=camera_back_name,
         parameters=[
             PathJoinSubstitution(
                 [
                     FindPackageShare(package_name),
                     "config",
-                    f"{camera_head_name}.yaml",
+                    f"{camera_back_name}.yaml",
                 ]
             )
         ],
         remappings=[
             (
-                "camera_head/depth/image_raw/compressedDepth",
-                camera_head_fqn_builder.stream(Stream.Depth)
+                "camera/depth/image_raw/compressedDepth",
+                camera_back_fqn_builder.stream(Stream.Depth)
                 .resource(Resource.ImageCompressed)
                 .build(),
             ),
             (
-                "camera_head/depth/camera_info",
-                camera_head_fqn_builder.resource(Resource.CameraInfo).build(),
+                "camera/depth/camera_info",
+                camera_back_fqn_builder.resource(Resource.CameraInfo).build(),
             ),
             (
-                "camera_head/color/image_raw/ffmpeg",
-                camera_head_fqn_builder.stream(Stream.Color)
+                "camera/color/image_raw/ffmpeg",
+                camera_back_fqn_builder.stream(Stream.Color)
                 .resource(Resource.ImageCompressed)
                 .build(),
             ),
             (
-                "camera_head/color/camera_info",
-                camera_head_fqn_builder.resource(Resource.CameraInfo).build(),
+                "camera/color/camera_info",
+                camera_back_fqn_builder.resource(Resource.CameraInfo).build(),
             ),
         ],
     )
 
-    lidar_back_fqn_builder = (
-        RosFqnBuilder().scope(Scope.Global).agent().component(Component.Lidar, "back")
+    lidar_right_fqn_builder = (
+        RosFqnBuilder().scope(Scope.Global).agent().component(Component.Lidar, "right")
     )
-    lidar_back_name = lidar_back_fqn_builder.build(RosFqnSegment.Component)
-    lidar_back_node = ComposableNode(
+    lidar_right_name = lidar_right_fqn_builder.build(RosFqnSegment.Component)
+    lidar_right_node = ComposableNode(
         package="livox_ros_driver2",
         plugin="livox_ros::DriverNode",
         namespace=local_namespace,
-        name=lidar_back_name,
+        name=lidar_right_name,
         parameters=[
             PathJoinSubstitution(
                 [
                     FindPackageShare(package_name),
                     "config",
-                    f"{lidar_back_name}.yaml",
+                    f"{lidar_right_name}.yaml",
                 ]
             ),
             {
@@ -91,21 +91,21 @@ def generate_launch_description():
                     [
                         FindPackageShare(package_name),
                         "config",
-                        "lidar_back_config.json",
+                        f"{lidar_right_name}.json",
                     ]
                 ),
-                "point_cloud_frame_id": f"{lidar_back_fqn_builder.build(begin=RosFqnSegment.Agent, end=RosFqnSegment.Component)}_point_cloud_frame",
-                "imu_frame_id": f"{lidar_back_fqn_builder.build(begin=RosFqnSegment.Agent, end=RosFqnSegment.Component)}_imu_frame",
+                "point_cloud_frame_id": f"{lidar_right_fqn_builder.build(begin=RosFqnSegment.Agent, end=RosFqnSegment.Component)}_point_cloud_frame",
+                "imu_frame_id": f"{lidar_right_fqn_builder.build(begin=RosFqnSegment.Agent, end=RosFqnSegment.Component)}_imu_frame",
             },
         ],
         remappings=[
             (
                 "livox/imu",
-                lidar_back_fqn_builder.resource(Resource.Imu).build(),
+                lidar_right_fqn_builder.resource(Resource.Imu).build(),
             ),
             (
                 "livox/lidar",
-                lidar_back_fqn_builder.resource(Resource.PointCloud).build(),
+                lidar_right_fqn_builder.resource(Resource.PointCloud).build(),
             ),
         ],
         extra_arguments=[{"use_intra_process_comms": True}],
@@ -120,8 +120,8 @@ def generate_launch_description():
                 name="hardware_interface_container",
                 output="screen",
                 composable_node_descriptions=[
-                    camera_head_node,
-                    lidar_back_node,
+                    camera_back_node,
+                    # lidar_right_node,
                 ],
             ),
         ]
