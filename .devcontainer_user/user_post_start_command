@@ -1,1 +1,25 @@
 #!/usr/bin/env bash
+
+sfg_tb4__restart_create3() {
+    local SCRIPT_DIR
+    SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>"/dev/null" && pwd)
+    source "${SCRIPT_DIR}/../.devcontainer/scripts/bash_utils/print_utils"
+
+    local START_TEXT="> Restarting Create 3."
+    local END_TEXT="< Done restarting Create 3."
+
+    sfg_bash_utils__print_info "${START_TEXT}"
+    # For some reason we cannot see the ROS topics of the Create 3 on the NVIDIA Jetson after booting the TurtleBot4.
+    # Only after restarting the application via the Create 3's web interface, the topics become visible.
+    # So as some hacky workaround, we just send a POST request to the Create 3's web interface to restart the application.
+    # curl -X POST http://192.168.55.2/api/restart-app -w "\n"
+    sfg_bash_utils__print_info "${END_TEXT}"
+}
+
+sfg_tb4__post_start_command() {
+    sfg_tb4__restart_create3
+}
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    sfg_tb4__post_start_command "${@}"
+fi

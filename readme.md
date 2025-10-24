@@ -38,37 +38,23 @@ Below instructions only work on our modified TB4s that include NVIDIA Jetson har
         <tr>
           <td>Beta Features/RMW Profile Override</td>
           <td>
-                <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+            <pre><code>&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
    &lt;profiles xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles"&gt;
-        &lt;transport_descriptors&gt;
-            &lt;transport_descriptor&gt;
-                &lt;transport_id&gt;transport&lt;/transport_id&gt;
-                &lt;interfaceWhiteList&gt;
-                    &lt;address&gt;127.0.0.1&lt;/address&gt;
-                    &lt;address&gt;192.168.55.2&lt;/address&gt;
-                &lt;/interfaceWhiteList&gt;
-            &lt;/transport_descriptor&gt;
-        &lt;/transport_descriptors&gt;
-        &#10;&#13;
-        &lt;participant profile_name="profile" is_default_profile="true"&gt;
-            &lt;rtps&gt;
-                &lt;useBuiltinTransports&gt;false&lt;/useBuiltinTransports&gt;
-                &lt;userTransports&gt;
-                    &lt;transport_id&gt;transport&lt;/transport_id&gt;
-                &lt;/userTransports&gt;
-                &lt;builtin&gt;
-                    &lt;initialPeersList&gt;
-                        &lt;locator&gt;
-                            &lt;udpv4&gt;
-                                &lt;address&gt;127.0.0.1&lt;/address&gt;
-                                &lt;address&gt;192.168.55.3&lt;/address&gt;
-                            &lt;/udpv4&gt;
-                        &lt;/locator&gt;
-                    &lt;/initialPeersList&gt;
-                &lt;/builtin&gt;
-            &lt;/rtps&gt;
-        &lt;/participant&gt;
-    &lt;/profiles&gt;</code></pre>
+     &lt;participant profile_name="profile" is_default_profile="true"&gt;
+       &lt;rtps&gt;
+        &lt;builtin&gt;
+          &lt;initialPeersList&gt;
+            &lt;locator&gt;
+              &lt;udpv4&gt;
+                &lt;address&gt;127.0.0.1&lt;/address&gt;
+                &lt;address&gt;192.168.55.3&lt;/address&gt;
+              &lt;/udpv4&gt;
+            &lt;/locator&gt;
+          &lt;/initialPeersList&gt;
+        &lt;/builtin&gt;
+       &lt;/rtps&gt;
+     &lt;/participant&gt;
+   &lt;/profiles&gt;</code></pre>
           </td>
         </tr>
       </tbody>
