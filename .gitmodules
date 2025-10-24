@@ -4,3 +4,6 @@
 [submodule "colcon_ws/src/sfg_agent_common"]
 	path = colcon_ws/src/sfg_agent_common
 	url = ../agent-common.git
+[submodule "colcon_ws/src/sfg_tb4_shared"]
+	path = colcon_ws/src/sfg_tb4_shared
+	url = ../tb4-shared
