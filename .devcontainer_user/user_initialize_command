@@ -25,8 +25,8 @@ sfg_tb4__configure_create3_networking() {
     SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>"/dev/null" && pwd)
     source "${SCRIPT_DIR}/../.devcontainer/scripts/bash_utils/print_utils"
 
-    local START_TEXT="> Configuring Create 3 interface."
-    local END_TEXT="< Done configuring Create 3 interface."
+    local START_TEXT="> Configuring Create 3 networking."
+    local END_TEXT="< Done configuring Create 3 networking."
 
     sfg_bash_utils__print_info "${START_TEXT}"
 
