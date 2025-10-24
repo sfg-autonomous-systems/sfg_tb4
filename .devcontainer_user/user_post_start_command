@@ -12,7 +12,9 @@ sfg_tb4__restart_create3() {
     # For some reason we cannot see the ROS topics of the Create 3 on the NVIDIA Jetson after booting the TurtleBot4.
     # Only after restarting the application via the Create 3's web interface, the topics become visible.
     # So as some hacky workaround, we just send a POST request to the Create 3's web interface to restart the application.
-    # curl -X POST http://192.168.55.2/api/restart-app -w "\n"
+    if ! ros2 topic list | grep -q "create3"; then
+        curl -X POST http://192.168.55.2/api/restart-app -w "\n"
+    fi
     sfg_bash_utils__print_info "${END_TEXT}"
 }
 
