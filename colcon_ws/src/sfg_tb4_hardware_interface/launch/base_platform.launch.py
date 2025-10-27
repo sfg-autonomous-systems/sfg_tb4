@@ -1,6 +1,6 @@
 import launch
 from launch.substitutions import Command, PathJoinSubstitution
-from launch_ros.actions import ComposableNodeContainer
+from launch_ros.actions import ComposableNodeContainer, Node
 from launch_ros.descriptions import ComposableNode
 from launch_ros.substitutions import FindPackageShare
 from rospkg import get_package_name
@@ -64,8 +64,54 @@ def generate_launch_description() -> launch.LaunchDescription:
         ],
     )
 
+    teleop_controller_driver_name = (
+        RosFqnBuilder()
+        .component(Component.Custom, "teleop_controller_driver")
+        .build(RosFqnSegment.Component)
+    )
+    teleop_controller_driver_node = Node(
+        package="joy_linux",
+        executable="joy_linux_node",
+        parameters=[{"dev": "/dev/input/js0"}],
+        name=teleop_controller_driver_name,
+        remappings=[("/diagnostics", "diagnostics")],
+    )
+
+    teleop_controller_name = (
+        RosFqnBuilder()
+        .component(Component.Custom, "teleop_controller")
+        .build(RosFqnSegment.Component)
+    )
+    teleop_controller_node = Node(
+        package="teleop_twist_joy",
+        executable="teleop_node",
+        name=teleop_controller_name,
+        parameters=[
+            PathJoinSubstitution(
+                [
+                    FindPackageShare(package_name),
+                    "config",
+                    f"{teleop_controller_name}.yaml",
+                ]
+            )
+        ],
+        remappings=[
+            (
+                "/cmd_vel",
+                RosFqnBuilder()
+                .scope(Scope.Local)
+                .agent()
+                .component(Component.Custom, "create3")
+                .resource(Resource.CmdVel)
+                .build(),
+            ),
+        ],
+    )
+
     return launch.LaunchDescription(
         [
+            teleop_controller_driver_node,
+            teleop_controller_node,
             ComposableNodeContainer(
                 package="rclcpp_components",
                 executable="component_container_mt",
