@@ -42,28 +42,39 @@ def generate_launch_description():
                     FindPackageShare(package_name),
                     "config",
                     f"{camera_back_name}.yaml",
-                ]
-            )
+                ],
+            ),
+            {
+                "frame_id": f"{camera_back_fqn_builder.build(RosFqnSegment.Agent) + '/' + camera_back_fqn_builder.build(RosFqnSegment.Component)}_color_optical_frame",
+            },
         ],
         remappings=[
             (
-                "camera/depth/image_raw/compressedDepth",
                 camera_back_fqn_builder.stream(Stream.Depth)
-                .resource(Resource.ImageCompressed)
-                .build(),
+                .resource(Resource.ImageRaw)
+                .build(begin=RosFqnSegment.Component, end=RosFqnSegment.Resource)
+                + "/compressedDepth",
+                camera_back_fqn_builder.resource(Resource.ImageCompressed).build(),
             ),
             (
-                "camera/depth/camera_info",
+                camera_back_fqn_builder.resource(Resource.CameraInfo).build(
+                    begin=RosFqnSegment.Component, end=RosFqnSegment.Resource
+                ),
                 camera_back_fqn_builder.resource(Resource.CameraInfo).build(),
             ),
             (
-                "camera/color/image_raw/ffmpeg",
+                camera_back_fqn_builder.stream(Stream.Color)
+                .resource(Resource.ImageRaw)
+                .build(begin=RosFqnSegment.Component, end=RosFqnSegment.Resource)
+                + "/ffmpeg",
                 camera_back_fqn_builder.stream(Stream.Color)
                 .resource(Resource.ImageCompressed)
                 .build(),
             ),
             (
-                "camera/color/camera_info",
+                camera_back_fqn_builder.resource(Resource.CameraInfo).build(
+                    begin=RosFqnSegment.Component, end=RosFqnSegment.Resource
+                ),
                 camera_back_fqn_builder.resource(Resource.CameraInfo).build(),
             ),
         ],
@@ -108,7 +119,6 @@ def generate_launch_description():
                 lidar_right_fqn_builder.resource(Resource.PointCloud).build(),
             ),
         ],
-        extra_arguments=[{"use_intra_process_comms": True}],
     )
 
     return launch.LaunchDescription(

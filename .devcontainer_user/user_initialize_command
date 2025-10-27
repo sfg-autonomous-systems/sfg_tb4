@@ -75,7 +75,7 @@ sfg_tb4__initialize_command() {
 
     sfg_tb4__set_up_udev_rules
     sfg_tb4__configure_create3_networking
-    sfg_bash_utils__configure_interface "ethernet" "lidar" "enP8p1s0" "ip4" "192.168.1.18/24" "ipv4.method" "manual"
+    sfg_bash_utils__configure_interface "ethernet" "lidar" "enP8p1s0" "ip4" "192.168.1.2/24" "ipv4.method" "manual"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
