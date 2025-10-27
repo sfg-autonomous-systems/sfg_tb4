@@ -4,17 +4,17 @@
 
     # Color stream settings.
     color_resolution: 1080p
-    camera.color.image_raw.ffmpeg.encoder: h264_nvmpi
-    camera.color.image_raw.ffmpeg.gop_size: 1
-    camera.color.image_raw.ffmpeg.bit_rate: 3000000
-    camera.color.image_raw.ffmpeg.encoder_av_options: profile:high,preset:ultrafast
-    camera.color.image_raw.enable_pub_plugins:
+    camera_back.color.image_raw.ffmpeg.encoder: h264_nvmpi
+    camera_back.color.image_raw.ffmpeg.gop_size: 1
+    camera_back.color.image_raw.ffmpeg.bit_rate: 3000000
+    camera_back.color.image_raw.ffmpeg.encoder_av_options: profile:high,preset:ultrafast
+    camera_back.color.image_raw.enable_pub_plugins:
       - image_transport/ffmpeg
       - image_transport/raw
 
     # Depth stream settings.
     depth_resolution: 720p
-    .camera.depth.image_raw.compressedDepth.format: rvl
-    camera.depth.image_raw.enable_pub_plugins:
+    .camera_back.depth.image_raw.compressedDepth.format: rvl
+    camera_back.depth.image_raw.enable_pub_plugins:
       - image_transport/compressedDepth
       - image_transport/raw
