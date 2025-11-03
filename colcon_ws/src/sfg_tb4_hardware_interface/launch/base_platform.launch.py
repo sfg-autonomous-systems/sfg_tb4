@@ -26,10 +26,50 @@ local_namespace, global_namespace = (
 
 
 def generate_launch_description() -> launch.LaunchDescription:
+    locomotion_controller_fqn_builder = (
+        RosFqnBuilder()
+        .scope(Scope.Global)
+        .agent()
+        .component(Component.LocomotionController)
+    )
+    locomotion_controller_name = locomotion_controller_fqn_builder.build(
+        RosFqnSegment.Component
+    )
+    locomotion_controller_node = Node(
+        package=package_name,
+        executable="locomotion_controller",
+        namespace=local_namespace,
+        name=locomotion_controller_name,
+        output="screen",
+        parameters=[
+            PathJoinSubstitution(
+                [
+                    FindPackageShare(package_name),
+                    "config",
+                    f"{locomotion_controller_name}.yaml",
+                ]
+            )
+        ],
+        remappings=[
+            (
+                locomotion_controller_fqn_builder.resource(Resource.CmdVel).build(
+                    RosFqnSegment.Resource
+                ),
+                locomotion_controller_fqn_builder.build(),
+            ),
+            (
+                locomotion_controller_fqn_builder.resource(
+                    Resource.TriggerAction
+                ).build(RosFqnSegment.Resource),
+                locomotion_controller_fqn_builder.build(),
+            ),
+        ],
+    )
+
     robot_state_publisher_fqn_builder = RosFqnBuilder().scope(Scope.Global).agent()
     robot_state_publisher_name = (
         RosFqnBuilder()
-        .component(Component.Custom, "robot_state_publisher")
+        .component(Component.RobotStatePublisher)
         .build(RosFqnSegment.Component)
     )
     robot_state_publisher_node = ComposableNode(
@@ -101,7 +141,7 @@ def generate_launch_description() -> launch.LaunchDescription:
                 RosFqnBuilder()
                 .scope(Scope.Local)
                 .agent()
-                .component(Component.Custom, "create3")
+                .component(Component.Create3)
                 .resource(Resource.CmdVel)
                 .build(),
             ),
@@ -119,6 +159,7 @@ def generate_launch_description() -> launch.LaunchDescription:
                 name="base_platform_container",
                 output="screen",
                 composable_node_descriptions=[
+                    locomotion_controller_node,
                     robot_state_publisher_node,
                 ],
             ),
