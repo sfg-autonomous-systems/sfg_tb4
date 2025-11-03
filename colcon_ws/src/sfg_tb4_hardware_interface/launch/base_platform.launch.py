@@ -35,12 +35,11 @@ def generate_launch_description() -> launch.LaunchDescription:
     locomotion_controller_name = locomotion_controller_fqn_builder.build(
         RosFqnSegment.Component
     )
-    locomotion_controller_node = Node(
+    locomotion_controller_node = ComposableNode(
         package=package_name,
-        executable="locomotion_controller",
+        plugin=f"{package_name}::LocomotionController",
         namespace=local_namespace,
         name=locomotion_controller_name,
-        output="screen",
         parameters=[
             PathJoinSubstitution(
                 [
