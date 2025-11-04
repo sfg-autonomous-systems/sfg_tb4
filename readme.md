@@ -21,7 +21,7 @@ Below instructions only work on our modified TB4s that include NVIDIA Jetson har
         </tr>
         <tr>
           <td>Application/Configuration/ROS 2 Namespace</td>
-          <td><code>/local/&lt;agent&gt;/create3</code></td>
+          <td><code>/local/&lt;agent&gt;/create_3</code></td>
         </tr>
         <tr>
           <td>Application/Configuration/RMW_IMPLEMENTATION</td>

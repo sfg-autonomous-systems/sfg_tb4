@@ -18,7 +18,7 @@ sfg_tb4__restart_create3() {
     local topics_found=false
 
     for ((retry_count = 0; retry_count < max_retries; retry_count++)); do
-        if ros2 topic list 2>"/dev/null" | grep -q "create3"; then
+        if ros2 topic list 2>"/dev/null" | grep -q "create_3"; then
             topics_found=true
             break
         fi
