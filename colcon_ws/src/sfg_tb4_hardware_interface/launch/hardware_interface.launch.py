@@ -9,16 +9,6 @@ from sfg_utils.fqn import (
 )
 
 package_name = get_package_name(__file__)
-local_namespace, global_namespace = (
-    RosFqnBuilder()
-    .scope(Scope.Local)
-    .agent()
-    .build(begin=RosFqnSegment.Scope, end=RosFqnSegment.Agent),
-    RosFqnBuilder()
-    .scope(Scope.Global)
-    .agent()
-    .build(begin=RosFqnSegment.Scope, end=RosFqnSegment.Agent),
-)
 
 
 def generate_launch_description() -> launch.LaunchDescription:
@@ -42,7 +32,10 @@ def generate_launch_description() -> launch.LaunchDescription:
             ComposableNodeContainer(
                 package="rclcpp_components",
                 executable="component_container_mt",
-                namespace=local_namespace,
+                namespace=RosFqnBuilder()
+                .scope(Scope.Local)
+                .agent()
+                .build(begin=RosFqnSegment.Scope, end=RosFqnSegment.Agent),
                 name="hardware_interface_container",
                 output="screen",
                 composable_node_descriptions=base_platform_launch_description_entities.composable_nodes
