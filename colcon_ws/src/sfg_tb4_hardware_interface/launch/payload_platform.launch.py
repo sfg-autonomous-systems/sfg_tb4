@@ -14,87 +14,83 @@ from sfg_utils.fqn import (
 )
 
 package_name = get_package_name(__file__)
-local_namespace, global_namespace = (
-    RosFqnBuilder()
-    .scope(Scope.Local)
-    .agent()
-    .build(begin=RosFqnSegment.Scope, end=RosFqnSegment.Agent),
-    RosFqnBuilder()
-    .scope(Scope.Global)
-    .agent()
-    .build(begin=RosFqnSegment.Scope, end=RosFqnSegment.Agent),
-)
+local_namespace = RosFqnBuilder().scope(Scope.Local).agent()
+global_namespace = RosFqnBuilder().scope(Scope.Global).agent()
 
 
 def generate_launch_description():
-    camera_back_fqn_builder = (
-        RosFqnBuilder().scope(Scope.Global).agent().component(Component.Camera, "back")
-    )
-    camera_back_name = camera_back_fqn_builder.build(RosFqnSegment.Component)
+    camera_back_fqn_builder = global_namespace.component(Component.Camera, "back")
     camera_back_node = ComposableNode(
         package="sfg_depthai",
         plugin="sfg_depthai::Camera",
-        namespace=local_namespace,
-        name=camera_back_name,
+        namespace=local_namespace.build(RosFqnSegment.Scope, RosFqnSegment.Agent),
+        name=camera_back_fqn_builder.build(RosFqnSegment.Component),
         parameters=[
             PathJoinSubstitution(
                 [
                     FindPackageShare(package_name),
                     "config",
-                    f"{camera_back_name}.yaml",
+                    f"{camera_back_fqn_builder.build(RosFqnSegment.Component)}.yaml",
                 ],
             ),
             {
-                "frame_id": f"{camera_back_fqn_builder.build(RosFqnSegment.Agent) + '/' + camera_back_fqn_builder.build(RosFqnSegment.Component)}_color_optical_frame",
+                "frame_id": f"{camera_back_fqn_builder.build(RosFqnSegment.Agent, RosFqnSegment.Component)}_color_optical_frame",
             },
         ],
         remappings=[
             (
-                camera_back_fqn_builder.stream(Stream.Depth)
+                RosFqnBuilder()
+                .stream(Stream.Depth)
                 .resource(Resource.ImageRaw)
-                .build(begin=RosFqnSegment.Component, end=RosFqnSegment.Resource)
+                .build(RosFqnSegment.Stream, RosFqnSegment.Resource)
                 + "/compressedDepth",
-                camera_back_fqn_builder.resource(Resource.ImageCompressed).build(),
+                camera_back_fqn_builder.stream(Stream.Depth)
+                .resource(Resource.ImageCompressed)
+                .build(),
             ),
             (
-                camera_back_fqn_builder.resource(Resource.CameraInfo).build(
-                    begin=RosFqnSegment.Component, end=RosFqnSegment.Resource
-                ),
-                camera_back_fqn_builder.resource(Resource.CameraInfo).build(),
+                RosFqnBuilder()
+                .stream(Stream.Depth)
+                .resource(Resource.CameraInfo)
+                .build(RosFqnSegment.Stream, RosFqnSegment.Resource),
+                camera_back_fqn_builder.stream(Stream.Depth)
+                .resource(Resource.CameraInfo)
+                .build(),
             ),
             (
-                camera_back_fqn_builder.stream(Stream.Color)
+                RosFqnBuilder()
+                .stream(Stream.Color)
                 .resource(Resource.ImageRaw)
-                .build(begin=RosFqnSegment.Component, end=RosFqnSegment.Resource)
+                .build(RosFqnSegment.Stream, RosFqnSegment.Resource)
                 + "/ffmpeg",
                 camera_back_fqn_builder.stream(Stream.Color)
                 .resource(Resource.ImageCompressed)
                 .build(),
             ),
             (
-                camera_back_fqn_builder.resource(Resource.CameraInfo).build(
-                    begin=RosFqnSegment.Component, end=RosFqnSegment.Resource
-                ),
-                camera_back_fqn_builder.resource(Resource.CameraInfo).build(),
+                RosFqnBuilder()
+                .stream(Stream.Color)
+                .resource(Resource.CameraInfo)
+                .build(RosFqnSegment.Stream, RosFqnSegment.Resource),
+                camera_back_fqn_builder.stream(Stream.Color)
+                .resource(Resource.CameraInfo)
+                .build(),
             ),
         ],
     )
 
-    lidar_right_fqn_builder = (
-        RosFqnBuilder().scope(Scope.Global).agent().component(Component.Lidar, "right")
-    )
-    lidar_right_name = lidar_right_fqn_builder.build(RosFqnSegment.Component)
+    lidar_right_fqn_builder = global_namespace.component(Component.Lidar, "right")
     lidar_right_node = ComposableNode(
         package="livox_ros_driver2",
         plugin="livox_ros::DriverNode",
-        namespace=local_namespace,
-        name=lidar_right_name,
+        namespace=local_namespace.build(RosFqnSegment.Scope, RosFqnSegment.Agent),
+        name=lidar_right_fqn_builder.build(RosFqnSegment.Component),
         parameters=[
             PathJoinSubstitution(
                 [
                     FindPackageShare(package_name),
                     "config",
-                    f"{lidar_right_name}.yaml",
+                    f"{lidar_right_fqn_builder.build(RosFqnSegment.Component)}.yaml",
                 ]
             ),
             {
@@ -102,11 +98,11 @@ def generate_launch_description():
                     [
                         FindPackageShare(package_name),
                         "config",
-                        f"{lidar_right_name}.json",
+                        f"{lidar_right_fqn_builder.build(RosFqnSegment.Component)}.json",
                     ]
                 ),
-                "point_cloud_frame_id": f"{lidar_right_fqn_builder.build(begin=RosFqnSegment.Agent, end=RosFqnSegment.Component)}_point_cloud_frame",
-                "imu_frame_id": f"{lidar_right_fqn_builder.build(begin=RosFqnSegment.Agent, end=RosFqnSegment.Component)}_imu_frame",
+                "point_cloud_frame_id": f"{lidar_right_fqn_builder.build(RosFqnSegment.Agent, RosFqnSegment.Component)}_point_cloud_frame",
+                "imu_frame_id": f"{lidar_right_fqn_builder.build(RosFqnSegment.Agent, RosFqnSegment.Component)}_imu_frame",
             },
         ],
         remappings=[
@@ -126,7 +122,9 @@ def generate_launch_description():
             ComposableNodeContainer(
                 package="rclcpp_components",
                 executable="component_container_mt",
-                namespace=local_namespace,
+                namespace=local_namespace.build(
+                    RosFqnSegment.Scope, RosFqnSegment.Agent
+                ),
                 name="payload_platform_container",
                 output="screen",
                 composable_node_descriptions=[
