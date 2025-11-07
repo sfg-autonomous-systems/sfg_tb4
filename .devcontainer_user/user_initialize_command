@@ -20,61 +20,12 @@ sfg_tb4__set_up_udev_rules() {
     sfg_bash_utils__print_info "${END_TEXT}"
 }
 
-sfg_tb4__configure_create3_networking() {
-    local SCRIPT_DIR
-    SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>"/dev/null" && pwd)
-    source "${SCRIPT_DIR}/../.devcontainer/scripts/bash_utils/print_utils"
-
-    local START_TEXT="> Configuring Create 3 networking."
-    local END_TEXT="< Done configuring Create 3 networking."
-
-    sfg_bash_utils__print_info "${START_TEXT}"
-
-    local UPSTREAM_INTERFACE="wlP1p1s0"
-    local DOWNSTREAM_INTERFACE="l4tbr0"
-    local NVIDIA_JETSON_IP="192.168.55.3"
-
-    local MESSAGE="Would you like to configure networking for the Create 3 platform? [y/N] "
-    read -rp "${MESSAGE}" confirm
-
-    if [[ ! "${confirm}" == "y" ]]; then
-        sfg_bash_utils__print_info "${END_TEXT}"
-        return 0
-    fi
-
-    sfg_bash_utils__print_plain "Ensuring netfilter-persistent is installed..."
-    sudo apt update
-    sudo apt install -y --no-install-recommends netfilter-persistent
-
-    sfg_bash_utils__print_plain "Setting NVIDIA Jetson IP to ${NVIDIA_JETSON_IP} for the Create 3 platform..."
-    sudo sed -i "s/^net_ip=.*/net_ip=${NVIDIA_JETSON_IP}/" "/opt/nvidia/l4t-usb-device-mode/nv-l4t-usb-device-mode-config.sh"
-
-    sfg_bash_utils__print_plain "Ensuring IP forwarding is enabled permanently..."
-
-    for setting in "net.ipv4.ip_forward=1"; do
-        sudo sed -i "/^${setting%=*}/d" "/etc/sysctl.conf"
-        echo "${setting}" | sudo tee -a "/etc/sysctl.conf" >"/dev/null"
-    done
-
-    # Apply the settings.
-    sudo sysctl -p
-
-    sfg_bash_utils__print_plain "Applying firewall forwarding rules..."
-    sudo iptables -C FORWARD -i ${DOWNSTREAM_INTERFACE} -o ${UPSTREAM_INTERFACE} -j ACCEPT 2>"/dev/null" || sudo iptables -I FORWARD 1 -i ${DOWNSTREAM_INTERFACE} -o ${UPSTREAM_INTERFACE} -j ACCEPT
-    sudo iptables -C FORWARD -i ${UPSTREAM_INTERFACE} -o ${DOWNSTREAM_INTERFACE} -m state --state ESTABLISHED,RELATED -j ACCEPT 2>"/dev/null" || sudo iptables -I FORWARD 2 -i ${UPSTREAM_INTERFACE} -o ${DOWNSTREAM_INTERFACE} -m state --state ESTABLISHED,RELATED -j ACCEPT
-    sudo iptables -t nat -C POSTROUTING -o ${UPSTREAM_INTERFACE} -j MASQUERADE 2>"/dev/null" || sudo iptables -t nat -A POSTROUTING -o ${UPSTREAM_INTERFACE} -j MASQUERADE
-    sudo netfilter-persistent save
-
-    sfg_bash_utils__print_info "${END_TEXT}"
-}
-
 sfg_tb4__initialize_command() {
     local SCRIPT_DIR
     SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>"/dev/null" && pwd)
     source "${SCRIPT_DIR}/../.devcontainer/scripts/bash_utils/configure_interface"
 
     sfg_tb4__set_up_udev_rules
-    sfg_tb4__configure_create3_networking
     sfg_bash_utils__configure_interface "ethernet" "lidar" "enP8p1s0" "ip4" "192.168.1.2/24" "ipv4.method" "manual"
 }
 

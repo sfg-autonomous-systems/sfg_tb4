@@ -33,7 +33,7 @@ Below instructions only work on our modified TB4s that include NVIDIA Jetson har
         </tr>
           <tr>
           <td>Beta Features/Edit ntp.conf</td>
-          <td><code>server 192.168.50.1 prefer iburst minpoll 4 maxpoll 6</code></td>
+          <td><code>server 192.168.55.3 prefer iburst minpoll 4 maxpoll 6</code></td>
         </tr>
         <tr>
           <td>Beta Features/RMW Profile Override</td>

@@ -16,3 +16,9 @@ services:
         read_only: true
     environment:
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID}
+  create3_ntp_relay_server:
+    image: dockurr/chrony
+    ports:
+      - 123:123/udp
+    environment:
+      - NTP_SERVERS=${NTP_SERVER}
