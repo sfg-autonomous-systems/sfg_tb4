@@ -2,7 +2,6 @@ name: ${PROJECT_NAME}
 
 include:
   - path:
-      - ../.devcontainer/compose/compose.ntp.yaml
       - ../.devcontainer/compose/compose.devcontainer.${PLATFORM}.yaml
 
 services:
@@ -17,3 +16,8 @@ services:
         read_only: true
     environment:
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID}
+  ntp_server_for_create_3:
+    image: dockurr/chrony
+    environment:
+      - NTP_SERVERS=${NTP_SERVER}
+    network_mode: host
