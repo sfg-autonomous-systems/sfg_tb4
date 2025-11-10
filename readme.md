@@ -16,22 +16,38 @@ Below instructions only work on our modified TB4s that include NVIDIA Jetson har
       </thead>
       <tbody>
         <tr>
-          <td>Application/Configuration/ROS 2 Domain ID</td>
+          <td>Application/Configuration/Main Configuration/ROS 2 Domain ID</td>
           <td>Same as configured on the NVIDIA Jetson running this repository.</td>
         </tr>
         <tr>
-          <td>Application/Configuration/ROS 2 Namespace</td>
+          <td>Application/Configuration/Main Configuration/ROS 2 Namespace</td>
           <td><code>/local/&lt;agent&gt;/create_3</code></td>
         </tr>
         <tr>
-          <td>Application/Configuration/RMW_IMPLEMENTATION</td>
+          <td>Application/Configuration/Main Configuration/RMW_IMPLEMENTATION</td>
           <td><code>rmw_fastrtps_cpp</code></td>
+        </tr>
+        <tr>
+          <td>Application/Configuration/Application ROS 2 Parameters File</td>
+          <td>
+            <pre><code>/local/&lt;agent&gt;/create_3/motion_control:
+     ros__parameters:
+       safety_override: full
+       reflexes.REFLEX_BUMP: false
+       reflexes.REFLEX_CLIFF: false
+       reflexes.REFLEX_DOCK_AVOID: false
+       reflexes.REFLEX_GYRO_CAL: true
+       reflexes.REFLEX_PANIC: false
+       reflexes.REFLEX_PROXIMITY_SLOWDOWN: false
+       reflexes.REFLEX_STUCK: false
+       reflexes.REFLEX_VIRTUAL_WALL: false
+       reflexes.REFLEX_WHEEL_DROP: false</code></pre>
+          </td>
         </tr>
         <tr>
           <td>Beta Features/Set Wired Subnet/New Robot IP</td>
           <td><code>192.168.55.2</code></td>
         </tr>
-          <tr>
           <td>Beta Features/Edit ntp.conf</td>
           <td><code>server 192.168.55.3 prefer iburst minpoll 4 maxpoll 6</code></td>
         </tr>
