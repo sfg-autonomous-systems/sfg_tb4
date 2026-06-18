@@ -3,23 +3,23 @@ FROM sfg-agent-devcontainer AS sfg-tb4
 WORKDIR ${HOME}/dependencies
 
 # iRobot Create
-RUN sudo apt update && sudo apt install -y --no-install-recommends \
+RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
         ros-${ROS_DISTRO}-irobot-create-msgs && \
-    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/"*
+    sudo apt-get -y autoremove && sudo apt-get clean && sudo rm -rf "/var/lib/apt/lists/"*
 
 # Teleop Controller
-RUN sudo apt update &&  sudo apt install -y --no-install-recommends \
+RUN sudo apt-get update &&  sudo apt-get install -y --no-install-recommends \
         ros-${ROS_DISTRO}-joy-linux  \
         ros-${ROS_DISTRO}-teleop-twist-joy && \
-    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/"*
+    sudo apt-get -y autoremove && sudo apt-get clean && sudo rm -rf "/var/lib/apt/lists/"*
 
 # DepthAI ROS
-RUN sudo apt update && sudo apt install -y --no-install-recommends \
+RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
         ros-${ROS_DISTRO}-depthai-ros && \
-    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/"*
+    sudo apt-get -y autoremove && sudo apt-get clean && sudo rm -rf "/var/lib/apt/lists/"*
 
 # Livox SDK2
-RUN git clone -b "v1.2.5" --depth 1 "https://github.com/Livox-SDK/Livox-SDK2.git" && \
+RUN git clone -b "v1.3.1" --depth 1 "https://github.com/Livox-SDK/Livox-SDK2.git" && \
     cd "Livox-SDK2" && \
     cmake -B "build" \
         -DCMAKE_BUILD_TYPE=Release && \
@@ -27,9 +27,9 @@ RUN git clone -b "v1.2.5" --depth 1 "https://github.com/Livox-SDK/Livox-SDK2.git
     sudo cmake --install "build" && sudo ldconfig
 
 # Livox ROS Driver 2
-RUN sudo apt update && sudo apt install -y --no-install-recommends \
+RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
         ros-${ROS_DISTRO}-pcl-conversions && \
-    sudo apt -y autoremove && sudo apt clean && sudo rm -rf "/var/lib/apt/lists/"* && \
+    sudo apt-get -y autoremove && sudo apt-get clean && sudo rm -rf "/var/lib/apt/lists/"* && \
     \
     rosdep update && \
     git clone -b "main" --depth 1 "https://gitlab+deploy-token-28:gldt-Fnui4V-UxTzsHFDmgarX@gitlab.hs-esslingen.de/smart-factory-grids/autonomous-systems/tools/livox-ros-driver-2.git" "livox_ros_driver_2" && \
@@ -43,7 +43,7 @@ RUN sudo apt update && sudo apt install -y --no-install-recommends \
     # Build the package.
     fakeroot "debian/rules" binary && \
     # Install the package.
-    cd ".." && sudo apt install -y "./"*".deb" && rm "./"*".deb" && \
+    cd ".." && sudo apt-get install -y "./"*".deb" && rm "./"*".deb" && \
     sudo rm -rf "${HOME}/.ros/rosdep/"*
 
 RUN sudo rm -rf "${HOME}/dependencies"
