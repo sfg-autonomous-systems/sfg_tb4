@@ -3,7 +3,7 @@
 <package format="3">
     <name>sfg_tb4_bringup</name>
     <version>0.0.0</version>
-    <description>The TurtleBot4 package responsible for launching the entire robot software stack.</description>
+    <description>The package responsible for launching the entire TurtleBot4 software stack.</description>
     <maintainer email="matthias.brandel@hs-esslingen.de">Matthias Brandel</maintainer>
     <license>MIT</license>
 
