@@ -22,7 +22,9 @@ RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
 RUN git clone -b "v1.3.1" --depth 1 "https://github.com/Livox-SDK/Livox-SDK2.git" && \
     cd "Livox-SDK2" && \
     cmake -B "build" \
-        -DCMAKE_BUILD_TYPE=Release && \
+        -DCMAKE_BUILD_TYPE=Release \
+        # cstdint is no longer included by default in Ubuntu 24.04's version of gcc, so we need to add it manually.
+        -DCMAKE_CXX_FLAGS="-include cstdint" && \
     cmake --build "build" -j$(nproc) && \
     sudo cmake --install "build" && sudo ldconfig
 
