@@ -22,12 +22,16 @@ sfg_utils__add_component("locomotion_controller" "${PROJECT_NAME}::LocomotionCon
   SOURCES
   "src/locomotion_controller.cpp"
   "src/locomotion_controller_component.cpp"
-  AMENT_DEPENDENCIES
-  rclcpp
-  rclcpp_components
-  sfg_agent_msgs
+  DEPENDENCIES
+  PRIVATE
+  rclcpp::rclcpp
+  rclcpp_components::component
+  ${sfg_agent_msgs_TARGETS}
+  sfg_utils::sfg_utils
+  PUBLIC
+  sfg_hardware_interface::sfg_hardware_interface
+  EXPORT_DEPENDENCIES
   sfg_hardware_interface
-  sfg_utils
 )
 
 # ########################################################################################################
