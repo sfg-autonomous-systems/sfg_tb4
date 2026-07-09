@@ -10,6 +10,7 @@ endif()
 # ########################################################################################################
 find_package(ament_cmake REQUIRED)
 find_package(fastdds REQUIRED)
+find_package(rclcpp REQUIRED)
 find_package(rmw REQUIRED)
 find_package(rmw_fastrtps_cpp REQUIRED)
 find_package(rcpputils REQUIRED)
@@ -29,6 +30,7 @@ sfg_utils__add_library(${PROJECT_NAME}
   DEPENDENCIES
   PUBLIC
   fastdds
+  rclcpp::rclcpp
   rmw::rmw
   rmw_fastrtps_cpp::rmw_fastrtps_cpp
   rcpputils::rcpputils

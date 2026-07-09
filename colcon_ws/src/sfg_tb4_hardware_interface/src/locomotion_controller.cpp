@@ -11,11 +11,11 @@ namespace sfg_tb4_hardware_interface
         using namespace sfg_utils::fqn;
 
         auto ros_domain_id = std::getenv("ROS_DOMAIN_ID");
-        uint32_t domain = ros_domain_id ? std::stoul(ros_domain_id) : 0;
         m_cmd_vel_publisher = std::make_unique<sfg_fastdds_utils::FastDDSPublisher>(
             get_node_base_interface()->resolve_topic_or_service_name(RosFqnBuilder().component(Component::Create3).resource(Resource::CmdVel).build(RosFqnSegment::Component, RosFqnSegment::Resource), false),
             rosidl_typesupport_fastrtps_cpp__get_message_type_support_handle__geometry_msgs__msg__Twist(),
-            domain);
+            rclcpp::SensorDataQoS(),
+            ros_domain_id ? std::stoul(ros_domain_id) : 0);
 
         RCLCPP_INFO(get_logger(), "Started locomotion controller.");
     }

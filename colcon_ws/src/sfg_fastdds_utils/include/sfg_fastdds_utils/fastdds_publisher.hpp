@@ -8,7 +8,7 @@
 #include <fastdds/dds/publisher/Publisher.hpp>
 #include <fastdds/dds/topic/Topic.hpp>
 #include <fastdds/dds/topic/TypeSupport.hpp>
-
+#include <rclcpp/qos.hpp>
 #include <rosidl_runtime_c/message_type_support_struct.h>
 
 namespace sfg_fastdds_utils
@@ -19,6 +19,7 @@ namespace sfg_fastdds_utils
         FastDDSPublisher(
             const std::string &topic_fqn,
             const rosidl_message_type_support_t *type_support_handle,
+            const rclcpp::QoS &qos = rclcpp::SystemDefaultsQoS(),
             uint32_t domain_id = 0);
         FastDDSPublisher(const FastDDSPublisher &) = delete;
         FastDDSPublisher(FastDDSPublisher &&) = delete;
