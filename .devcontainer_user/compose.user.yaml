@@ -6,7 +6,7 @@ include:
       - ../.devcontainer/compose/compose.cross_domain_router.yaml
 
 services:
-  ntp_server_for_create_3:
+  ntp_server_for_create3:
     image: dockurr/chrony
     environment:
       - NTP_SERVERS=${NTP_SERVER}

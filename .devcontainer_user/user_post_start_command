@@ -1,6 +1,77 @@
 #!/usr/bin/env bash
 
+sfg_tb4__get_agent_name() {
+    local source="${COLCON_WS}/src/sfg_agent_common/sfg_utils/src/agent_utils.cpp"
+    local header_dir="${COLCON_WS}/src/sfg_agent_common/sfg_utils/include"
+    local binary="/tmp/sfg_agent__get_agent_name"
+    local wrapper="/tmp/sfg_agent__get_agent_name_wrapper.cpp"
+
+    if [[ ! -x "${binary}" ]]; then
+        cat <<'EOF' >"${wrapper}"
+#include <iostream>
+#include "sfg_utils/agent_utils.hpp"
+
+int main() 
+{
+    try 
+    {
+        std::cout << sfg_utils::agent_utils::sanitize_agent_name(sfg_utils::agent_utils::get_agent_name()) << std::endl;
+    } 
+    catch (const std::exception& e) 
+    {
+        std::cerr << e.what() << std::endl;
+        return 1;
+    }
+    return 0;
+}
+EOF
+
+        # Compile the wrapper silently.
+        if ! g++ -std=c++17 -I"${header_dir}" "${wrapper}" "${source}" -o "${binary}" 2>"/dev/null"; then
+            echo "Error: Failed to JIT compile '${source}'" >&2
+            return 1
+        fi
+    fi
+
+    # Execute the compiled C++ binary.
+    "${binary}"
+}
+
+sfg_tb4__configure_create3() {
+    local create3_ip="${1}"
+
+    local SCRIPT_DIR
+    SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>"/dev/null" && pwd)
+    source "${SCRIPT_DIR}/../.devcontainer/scripts/bash_utils/print_utils"
+
+    local START_TEXT="> Configuring Create 3."
+    local END_TEXT="< Done configuring Create 3."
+
+    sfg_bash_utils__print_info "${START_TEXT}"
+
+    # Configure ROS domain id, namespace, and RMW implementation.
+    curl -X POST -so "/dev/null" \
+        --data-urlencode "ros_domain_id=${ROS_DOMAIN_ID}" \
+        --data-urlencode "ros_namespace=/local/$(sfg_tb4__get_agent_name)/create3" \
+        --data-urlencode "rmw_implementation=rmw_fastrtps_cpp" \
+        --data-urlencode "fast_discovery_server_value=" \
+        "http://${create3_ip}/ros-config-save-main"
+
+    # Configure ROS parameters.
+    curl -X POST -so "/dev/null" --data-urlencode "yaml@${SCRIPT_DIR}/config/create3_ros_parameters.yaml" "http://${create3_ip}/ros-config-save-params"
+
+    # Configure NTP.
+    curl -X POST -so "/dev/null" --data-urlencode "config@${SCRIPT_DIR}/config/create3_ntp.conf" "http://${create3_ip}/beta-ntp-conf-save"
+
+    # Configure RMW profile.
+    curl -X POST -so "/dev/null" --data-urlencode "config@${SCRIPT_DIR}/config/create3_rmw_profile.xml" "http://${create3_ip}/rmw-profile-override-save"
+
+    sfg_bash_utils__print_info "${END_TEXT}"
+}
+
 sfg_tb4__restart_create3() {
+    local create3_ip="${1}"
+
     local SCRIPT_DIR
     SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>"/dev/null" && pwd)
     source "${SCRIPT_DIR}/../.devcontainer/scripts/bash_utils/print_utils"
@@ -16,7 +87,7 @@ sfg_tb4__restart_create3() {
     local topics_found=false
 
     for ((retry_count = 0; retry_count < max_retries; retry_count++)); do
-        if ros2 topic list 2>"/dev/null" | grep -q "create_3"; then
+        if RMW_IMPLEMENTATION=rmw_fastrtps_cpp ros2 topic list --no-daemon 2>"/dev/null" | grep -q "create3"; then
             topics_found=true
             break
         fi
@@ -27,14 +98,16 @@ sfg_tb4__restart_create3() {
     if [ "${topics_found}" = false ]; then
         sfg_bash_utils__print_info "${START_TEXT}"
         sfg_bash_utils__print_plain "Create 3 topics not found, restarting Create 3 application..."
-        curl -X POST http://192.168.55.2/api/restart-app -w "\n"
+        curl -X POST "http://${create3_ip}/api/restart-app" -w "\n"
         sfg_bash_utils__print_info "${END_TEXT}"
     fi
-
 }
 
 sfg_tb4__post_start_command() {
-    sfg_tb4__restart_create3
+    local create3_ip="192.168.55.2"
+
+    # sfg_tb4__configure_create3 "${create3_ip}"
+    # sfg_tb4__restart_create3 "${create3_ip}"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then

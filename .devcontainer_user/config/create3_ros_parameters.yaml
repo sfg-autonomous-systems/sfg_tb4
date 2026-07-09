@@ -1,0 +1,12 @@
+/**/motion_control:
+  ros__parameters:
+    safety_override: full
+    reflexes.REFLEX_BUMP: false
+    reflexes.REFLEX_CLIFF: false
+    reflexes.REFLEX_DOCK_AVOID: false
+    reflexes.REFLEX_GYRO_CAL: true
+    reflexes.REFLEX_PANIC: false
+    reflexes.REFLEX_PROXIMITY_SLOWDOWN: false
+    reflexes.REFLEX_STUCK: false
+    reflexes.REFLEX_VIRTUAL_WALL: false
+    reflexes.REFLEX_WHEEL_DROP: false
