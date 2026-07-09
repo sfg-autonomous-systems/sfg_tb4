@@ -98,7 +98,12 @@ sfg_tb4__restart_create3() {
     if [ "${topics_found}" = false ]; then
         sfg_bash_utils__print_info "${START_TEXT}"
         sfg_bash_utils__print_plain "Create 3 topics not found, restarting Create 3 application..."
-        curl -X POST "http://${create3_ip}/api/restart-app" -w "\n"
+
+        until curl -X POST "http://${create3_ip}/api/restart-app" -w "\n"; do
+            sfg_bash_utils__print_plain "Restart request failed, retrying in ${retry_delay}s..."
+            sleep "${retry_delay}"
+        done
+
         sfg_bash_utils__print_info "${END_TEXT}"
     fi
 }

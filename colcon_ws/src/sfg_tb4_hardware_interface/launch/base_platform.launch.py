@@ -1,6 +1,6 @@
 import launch
 from launch.substitutions import Command, PathJoinSubstitution
-from launch_ros.actions import ComposableNodeContainer, Node
+from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 from launch_ros.substitutions import FindPackageShare
 from rospkg import get_package_name
@@ -51,56 +51,6 @@ def generate_launch_description() -> launch.LaunchDescription:
         ],
     )
 
-    teleop_controller_driver_fqn_builder = global_namespace.component(
-        Component.Custom, "teleop_controller_driver"
-    )
-    teleop_controller_driver_node = Node(
-        package="joy_linux",
-        executable="joy_linux_node",
-        namespace=locomotion_controller_fqn_builder.scope(Scope.Local).build(
-            RosFqnSegment.Scope, RosFqnSegment.Component
-        ),
-        name=teleop_controller_driver_fqn_builder.build(RosFqnSegment.Component),
-        parameters=[
-            PathJoinSubstitution(
-                [
-                    FindPackageShare(package_name),
-                    "config",
-                    f"{teleop_controller_driver_fqn_builder.build(RosFqnSegment.Component)}.yaml",
-                ]
-            )
-        ],
-    )
-
-    teleop_controller_fqn_builder = global_namespace.component(
-        Component.Custom, "teleop_controller"
-    )
-    teleop_controller_node = Node(
-        package="teleop_twist_joy",
-        executable="teleop_node",
-        namespace=locomotion_controller_fqn_builder.scope(Scope.Local).build(
-            RosFqnSegment.Scope, RosFqnSegment.Component
-        ),
-        name=teleop_controller_fqn_builder.build(RosFqnSegment.Component),
-        parameters=[
-            PathJoinSubstitution(
-                [
-                    FindPackageShare(package_name),
-                    "config",
-                    f"{teleop_controller_fqn_builder.build(RosFqnSegment.Component)}.yaml",
-                ]
-            )
-        ],
-        remappings=[
-            (
-                RosFqnBuilder().resource(Resource.CmdVel).build(RosFqnSegment.Resource),
-                local_namespace.component(Component.Create3)
-                .resource(Resource.CmdVel)
-                .build(),
-            ),
-        ],
-    )
-
     robot_state_publisher_fqn_builder = global_namespace.component(
         Component.Custom, "robot_state_publisher"
     )
@@ -138,8 +88,6 @@ def generate_launch_description() -> launch.LaunchDescription:
 
     return launch.LaunchDescription(
         [
-            teleop_controller_driver_node,
-            teleop_controller_node,
             ComposableNodeContainer(
                 package="rclcpp_components",
                 executable="component_container_mt",

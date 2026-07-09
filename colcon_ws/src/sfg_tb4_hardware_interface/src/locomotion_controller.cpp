@@ -132,7 +132,9 @@ namespace sfg_tb4_hardware_interface
         using namespace eprosima::fastdds::dds;
 
         auto factory = DomainParticipantFactory::get_instance();
-        m_participant = factory->create_participant_with_default_profile();
+        DomainParticipantQos participant_qos = PARTICIPANT_QOS_DEFAULT;
+        auto ros_domain_id = std::getenv("ROS_DOMAIN_ID");
+        m_participant = factory->create_participant(ros_domain_id ? std::stoul(ros_domain_id) : 0, participant_qos);
 
         if (m_participant == nullptr)
         {
@@ -155,12 +157,15 @@ namespace sfg_tb4_hardware_interface
         }
 
         // Create the topic.
+        auto topic_name = "rt" + (get_namespace() + ("/" + RosFqnBuilder().component(Component::Create3).resource(Resource::CmdVel).build(RosFqnSegment::Component, RosFqnSegment::Resource)));
         TopicQos topic_qos = TOPIC_QOS_DEFAULT;
         m_participant->get_default_topic_qos(topic_qos);
         m_cmd_vel_topic = m_participant->create_topic(
-            RosFqnBuilder().component(Component::Create3).resource(Resource::CmdVel).build(RosFqnSegment::Component, RosFqnSegment::Resource),
+            topic_name,
             m_cmd_vel_type.get_type_name(),
             topic_qos);
+
+        RCLCPP_INFO(get_logger(), "Created Fast DDS topic: %s", topic_name.c_str());
 
         if (m_cmd_vel_topic == nullptr)
         {
@@ -170,8 +175,11 @@ namespace sfg_tb4_hardware_interface
 
         // Create the data writer.
         DataWriterQos writer_qos = DATAWRITER_QOS_DEFAULT;
-        writer_qos.reliability().kind = BEST_EFFORT_RELIABILITY_QOS;
         m_cmd_vel_publisher->get_default_datawriter_qos(writer_qos);
+        writer_qos.reliability().kind = BEST_EFFORT_RELIABILITY_QOS;
+        writer_qos.durability().kind = VOLATILE_DURABILITY_QOS;
+        writer_qos.history().kind = KEEP_LAST_HISTORY_QOS;
+        writer_qos.history().depth = 5;
         m_cmd_vel_writer = m_cmd_vel_publisher->create_datawriter(m_cmd_vel_topic, writer_qos);
 
         if (m_cmd_vel_writer == nullptr)
@@ -190,6 +198,10 @@ namespace sfg_tb4_hardware_interface
             RCLCPP_ERROR(get_logger(), "Fast DDS data writer is not initialized.");
             return;
         }
+
+        RCLCPP_INFO(get_logger(), "Publishing cmd_vel: linear=(%f, %f, %f), angular=(%f, %f, %f)",
+                    cmd.twist.linear.x, cmd.twist.linear.y, cmd.twist.linear.z,
+                    cmd.twist.angular.x, cmd.twist.angular.y, cmd.twist.angular.z);
 
         geometry_msgs::msg::Twist msg;
         msg.linear = cmd.twist.linear;
