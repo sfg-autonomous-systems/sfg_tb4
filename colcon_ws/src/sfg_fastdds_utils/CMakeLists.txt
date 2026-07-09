@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(sfg_tb4_hardware_interface)
+project(sfg_fastdds_utils)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -9,47 +9,30 @@ endif()
 # Find dependencies.                                                                                     #
 # ########################################################################################################
 find_package(ament_cmake REQUIRED)
-find_package(fastdds REQUIRED)
-find_package(geometry_msgs REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(rclcpp_components REQUIRED)
+find_package(rmw REQUIRED)
 find_package(rmw_fastrtps_cpp REQUIRED)
-find_package(sfg_agent_msgs REQUIRED)
-find_package(sfg_fastdds_utils REQUIRED)
-find_package(sfg_hardware_interface REQUIRED)
+find_package(rcpputils REQUIRED)
 find_package(sfg_utils REQUIRED)
 
 # ########################################################################################################
 # Add nodes and libraries.                                                                               #
 # ########################################################################################################
-sfg_utils__add_component("locomotion_controller" "${PROJECT_NAME}::LocomotionController"
+sfg_utils__add_library(${PROJECT_NAME}
   SOURCES
-  "src/locomotion_controller.cpp"
-  "src/locomotion_controller_component.cpp"
+  "src/message_type_support.cpp"
+  "src/request_type_support.cpp"
+  "src/response_type_support.cpp"
+  "src/service_type_support.cpp"
+  "src/type_support.cpp"
   DEPENDENCIES
-  PRIVATE
-  ${geometry_msgs_TARGETS}
-  rclcpp::rclcpp
-  rclcpp_components::component
-  rmw_fastrtps_cpp::rmw_fastrtps_cpp
-  ${sfg_agent_msgs_TARGETS}
-  sfg_fastdds_utils::sfg_fastdds_utils
-  sfg_utils::sfg_utils
   PUBLIC
-  fastdds
-  sfg_hardware_interface::sfg_hardware_interface
+  rmw::rmw
+  rmw_fastrtps_cpp::rmw_fastrtps_cpp
+  rcpputils::rcpputils
   EXPORT_DEPENDENCIES
-  fastdds
-  sfg_hardware_interface
-)
-
-# ########################################################################################################
-# Add other files/directories.                                                                           #
-# ########################################################################################################
-install(DIRECTORY
-  "config"
-  "launch"
-  DESTINATION "share/${PROJECT_NAME}/"
+  rmw
+  rmw_fastrtps_cpp
+  rcpputils
 )
 
 if(BUILD_TESTING)

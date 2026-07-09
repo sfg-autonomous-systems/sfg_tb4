@@ -3,138 +3,25 @@
 #include <fastcdr/Cdr.h>
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/rtps/common/CdrSerialization.hpp>
+#include <geometry_msgs/msg/detail/twist__rosidl_typesupport_fastrtps_cpp.hpp>
+#include <rmw_fastrtps_cpp/rmw_fastrtps_cpp/MessageTypeSupport.hpp>
 
 #include "sfg_utils/fqn/ros_fqn_builder.hpp"
 
 namespace sfg_tb4_hardware_interface
 {
-    LocomotionController::CmdVelType::CmdVelType()
-    {
-        set_name("geometry_msgs::msg::dds_::Twist_");
-        // Encapsulation header length (4 bytes) + plain CDR data data length (48 bytes).
-        std::uint32_t type_size = 48;
-        type_size += static_cast<std::uint32_t>(eprosima::fastcdr::Cdr::alignment(type_size, 4));
-        max_serialized_type_size = type_size + 4;
-        is_compute_key_provided = false;
-    }
-
-    bool LocomotionController::CmdVelType::serialize(
-        const void *const data,
-        eprosima::fastdds::rtps::SerializedPayload_t &payload,
-        eprosima::fastdds::dds::DataRepresentationId_t data_representation)
-    {
-        using namespace eprosima::fastdds::dds;
-        using namespace eprosima::fastcdr;
-
-        if (data == nullptr)
-        {
-            return false;
-        }
-
-        const auto *msg = static_cast<const geometry_msgs::msg::Twist *>(data);
-
-        FastBuffer buffer(reinterpret_cast<char *>(payload.data), payload.max_size);
-        Cdr serializer(
-            buffer,
-            Cdr::DEFAULT_ENDIAN,
-            data_representation == DataRepresentationId_t::XCDR_DATA_REPRESENTATION ? CdrVersion::XCDRv1 : CdrVersion::XCDRv2);
-
-        payload.encapsulation = serializer.endianness() == Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
-        serializer.set_encoding_flag(
-            data_representation == DataRepresentationId_t::XCDR_DATA_REPRESENTATION ? EncodingAlgorithmFlag::PLAIN_CDR : EncodingAlgorithmFlag::DELIMIT_CDR2);
-
-        try
-        {
-            serializer.serialize_encapsulation();
-            serializer << msg->linear.x << msg->linear.y << msg->linear.z;
-            serializer << msg->angular.x << msg->angular.y << msg->angular.z;
-            serializer.set_dds_cdr_options({0, 0});
-        }
-        catch (eprosima::fastcdr::exception::Exception &)
-        {
-            return false;
-        }
-
-        payload.length = static_cast<uint32_t>(serializer.get_serialized_data_length());
-        return true;
-    }
-
-    bool LocomotionController::CmdVelType::deserialize(eprosima::fastdds::rtps::SerializedPayload_t &payload, void *data)
-    {
-        using namespace eprosima::fastdds::dds;
-        using namespace eprosima::fastcdr;
-
-        if (data == nullptr)
-        {
-            return false;
-        }
-
-        auto *msg = static_cast<geometry_msgs::msg::Twist *>(data);
-
-        try
-        {
-            FastBuffer buffer(reinterpret_cast<char *>(payload.data), payload.length);
-            Cdr deserializer(buffer, Cdr::DEFAULT_ENDIAN);
-
-            deserializer.read_encapsulation();
-            payload.encapsulation = deserializer.endianness() == Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
-            deserializer >> msg->linear.x >> msg->linear.y >> msg->linear.z;
-            deserializer >> msg->angular.x >> msg->angular.y >> msg->angular.z;
-        }
-        catch (exception::Exception &)
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-    uint32_t LocomotionController::CmdVelType::calculate_serialized_size(
-        const void *const,
-        eprosima::fastdds::dds::DataRepresentationId_t)
-    {
-        return max_serialized_type_size;
-    }
-
-    bool LocomotionController::CmdVelType::compute_key(
-        eprosima::fastdds::rtps::SerializedPayload_t &,
-        eprosima::fastdds::rtps::InstanceHandle_t &,
-        bool)
-    {
-        return false;
-    }
-
-    bool LocomotionController::CmdVelType::compute_key(
-        const void *const,
-        eprosima::fastdds::rtps::InstanceHandle_t &,
-        bool)
-    {
-        return false;
-    }
-
-    void *LocomotionController::CmdVelType::create_data()
-    {
-        return reinterpret_cast<void *>(new geometry_msgs::msg::Twist());
-    }
-
-    void LocomotionController::CmdVelType::delete_data(void *data)
-    {
-        delete reinterpret_cast<geometry_msgs::msg::Twist *>(data);
-    }
-
-    void LocomotionController::CmdVelType::register_type_object_representation()
-    {
-    }
-
     LocomotionController::LocomotionController(const rclcpp::NodeOptions &options) : LocomotionControllerBase("locomotion_controller", options)
     {
         using namespace sfg_utils::fqn;
         using namespace eprosima::fastdds::dds;
 
-        auto factory = DomainParticipantFactory::get_instance();
+        auto type_support_handle = rosidl_typesupport_fastrtps_cpp__get_message_type_support_handle__geometry_msgs__msg__Twist();
+        auto callbacks = static_cast<const message_type_support_callbacks_t *>(type_support_handle->data);
+        m_cmd_vel_type.reset(new rmw_fastrtps_cpp::MessageTypeSupport(callbacks, type_support_handle));
+
         DomainParticipantQos participant_qos = PARTICIPANT_QOS_DEFAULT;
         auto ros_domain_id = std::getenv("ROS_DOMAIN_ID");
-        m_participant = factory->create_participant(ros_domain_id ? std::stoul(ros_domain_id) : 0, participant_qos);
+        m_participant = DomainParticipantFactory::get_instance()->create_participant(ros_domain_id ? std::stoul(ros_domain_id) : 0, participant_qos);
 
         if (m_participant == nullptr)
         {
@@ -191,6 +78,31 @@ namespace sfg_tb4_hardware_interface
         RCLCPP_INFO(get_logger(), "Started locomotion controller.");
     }
 
+    LocomotionController::~LocomotionController()
+    {
+        using namespace eprosima::fastdds::dds;
+
+        if (m_cmd_vel_publisher && m_cmd_vel_writer)
+        {
+            m_cmd_vel_publisher->delete_datawriter(m_cmd_vel_writer);
+        }
+
+        if (m_participant && m_cmd_vel_topic)
+        {
+            m_participant->delete_topic(m_cmd_vel_topic);
+        }
+
+        if (m_participant && m_cmd_vel_publisher)
+        {
+            m_participant->delete_publisher(m_cmd_vel_publisher);
+        }
+
+        if (m_participant)
+        {
+            DomainParticipantFactory::get_instance()->delete_participant(m_participant);
+        }
+    }
+
     void LocomotionController::apply_cmd(const geometry_msgs::msg::TwistStamped &cmd)
     {
         if (!m_cmd_vel_writer)
@@ -206,6 +118,15 @@ namespace sfg_tb4_hardware_interface
         geometry_msgs::msg::Twist msg;
         msg.linear = cmd.twist.linear;
         msg.angular = cmd.twist.angular;
-        m_cmd_vel_writer->write(&msg);
+
+        auto type_support_handle = rosidl_typesupport_fastrtps_cpp__get_message_type_support_handle__geometry_msgs__msg__Twist();
+        auto callbacks = static_cast<const message_type_support_callbacks_t *>(type_support_handle->data);
+
+        rmw_fastrtps_shared_cpp::SerializedData serialized_data;
+        serialized_data.type = rmw_fastrtps_shared_cpp::FASTDDS_SERIALIZED_DATA_TYPE_ROS_MESSAGE;
+        serialized_data.data = &msg;
+        serialized_data.impl = callbacks;
+
+        m_cmd_vel_writer->write(&serialized_data);
     }
 }
