@@ -7,11 +7,9 @@
     <maintainer email="matthias.brandel@hs-esslingen.de">Matthias Brandel</maintainer>
     <license>MIT</license>
 
-    <depend>fastdds</depend>
     <depend>geometry_msgs</depend>
     <depend>rclcpp</depend>
     <depend>rclcpp_components</depend>
-    <depend>rmw_fastrtps_cpp</depend>
     <depend>sfg_agent_msgs</depend>
     <depend>sfg_fastdds_utils</depend>
     <depend>sfg_hardware_interface</depend>

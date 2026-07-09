@@ -9,6 +9,7 @@ endif()
 # Find dependencies.                                                                                     #
 # ########################################################################################################
 find_package(ament_cmake REQUIRED)
+find_package(fastdds REQUIRED)
 find_package(rmw REQUIRED)
 find_package(rmw_fastrtps_cpp REQUIRED)
 find_package(rcpputils REQUIRED)
@@ -19,6 +20,7 @@ find_package(sfg_utils REQUIRED)
 # ########################################################################################################
 sfg_utils__add_library(${PROJECT_NAME}
   SOURCES
+  "src/fastdds_publisher.cpp"
   "src/message_type_support.cpp"
   "src/request_type_support.cpp"
   "src/response_type_support.cpp"
@@ -26,10 +28,12 @@ sfg_utils__add_library(${PROJECT_NAME}
   "src/type_support.cpp"
   DEPENDENCIES
   PUBLIC
+  fastdds
   rmw::rmw
   rmw_fastrtps_cpp::rmw_fastrtps_cpp
   rcpputils::rcpputils
   EXPORT_DEPENDENCIES
+  fastdds
   rmw
   rmw_fastrtps_cpp
   rcpputils
