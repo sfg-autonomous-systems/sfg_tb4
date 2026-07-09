@@ -11,6 +11,8 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
+find_package(fastcdr REQUIRED)
+find_package(fastdds REQUIRED)
 find_package(sfg_agent_msgs REQUIRED)
 find_package(sfg_hardware_interface REQUIRED)
 find_package(sfg_utils REQUIRED)
@@ -26,6 +28,8 @@ sfg_utils__add_component("locomotion_controller" "${PROJECT_NAME}::LocomotionCon
   PRIVATE
   rclcpp::rclcpp
   rclcpp_components::component
+  fastcdr
+  fastdds
   ${sfg_agent_msgs_TARGETS}
   sfg_utils::sfg_utils
   PUBLIC

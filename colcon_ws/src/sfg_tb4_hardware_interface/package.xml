@@ -9,6 +9,8 @@
 
     <depend>rclcpp</depend>
     <depend>rclcpp_components</depend>
+    <depend>fastcdr</depend>
+    <depend>fastdds</depend>
     <depend>sfg_agent_msgs</depend>
     <depend>sfg_hardware_interface</depend>
     <depend>sfg_utils</depend>
