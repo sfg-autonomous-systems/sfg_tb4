@@ -34,7 +34,7 @@ RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
     sudo apt-get -y autoremove && sudo apt-get clean && sudo rm -rf "/var/lib/apt/lists/"* && \
     \
     rosdep update && \
-    git clone -b "main" --depth 1 "https://gitlab+deploy-token-28:gldt-Fnui4V-UxTzsHFDmgarX@gitlab.hs-esslingen.de/smart-factory-grids/autonomous-systems/tools/livox-ros-driver-2.git" "livox_ros_driver_2" && \
+    git clone -b "${ROS_DISTRO}" --depth 1 "https://gitlab+deploy-token-28:gldt-Fnui4V-UxTzsHFDmgarX@gitlab.hs-esslingen.de/smart-factory-grids/autonomous-systems/tools/livox-ros-driver-2.git" "livox_ros_driver_2" && \
     cd "livox_ros_driver_2" && \
     # Generate debian files.
     bloom-generate rosdebian && \
