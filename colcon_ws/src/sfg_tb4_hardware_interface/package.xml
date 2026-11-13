@@ -11,7 +11,7 @@
     <depend>rclcpp</depend>
     <depend>rclcpp_components</depend>
     <depend>sfg_agent_msgs</depend>
-    <depend>sfg_fastdds_utils</depend>
+    <depend>sfg_fastdds_bridge</depend>
     <depend>sfg_hardware_interface</depend>
     <depend>sfg_utils</depend>
 

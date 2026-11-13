@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-    <name>sfg_fastdds_utils</name>
+    <name>sfg_fastdds_bridge</name>
     <version>0.0.0</version>
-    <description>Utility library to directly bridge ROS 2 types to raw FastDDS participants.</description>
+    <description>Bridge for publishing ROS messages to FastDDS-only peers independent of the active
+        RMW.</description>
     <maintainer email="constantin.blessing@hs-esslingen.de">Constantin Blessing</maintainer>
     <license>MIT</license>
 

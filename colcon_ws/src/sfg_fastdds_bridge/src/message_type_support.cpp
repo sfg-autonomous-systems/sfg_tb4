@@ -1,4 +1,4 @@
-#include "sfg_fastdds_utils/type_support_utils.hpp"
+#include "sfg_fastdds_bridge/type_support_utils.hpp"
 
 namespace rmw_fastrtps_cpp
 {

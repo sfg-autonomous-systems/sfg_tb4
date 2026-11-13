@@ -13,7 +13,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(sfg_agent_msgs REQUIRED)
-find_package(sfg_fastdds_utils REQUIRED)
+find_package(sfg_fastdds_bridge REQUIRED)
 find_package(sfg_hardware_interface REQUIRED)
 find_package(sfg_utils REQUIRED)
 
@@ -30,7 +30,7 @@ sfg_utils__add_component("locomotion_controller" "${PROJECT_NAME}::LocomotionCon
   rclcpp::rclcpp
   rclcpp_components::component
   ${sfg_agent_msgs_TARGETS}
-  sfg_fastdds_utils::sfg_fastdds_utils
+  sfg_fastdds_bridge::sfg_fastdds_bridge
   sfg_utils::sfg_utils
   PUBLIC
   sfg_hardware_interface::sfg_hardware_interface

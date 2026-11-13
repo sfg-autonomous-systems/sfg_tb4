@@ -4,11 +4,10 @@
 
 #include <rclcpp/qos.hpp>
 
-#include "sfg_fastdds_utils/generic_fastdds_publisher.hpp"
+#include "sfg_fastdds_bridge/generic_fastdds_publisher.hpp"
 
-namespace sfg_fastdds_utils
+namespace sfg_fastdds_bridge
 {
-    /// Typed FastDDS publisher for ROS 2 messages, e.g. FastDDSPublisher<geometry_msgs::msg::Twist>.
     template <typename MessageType>
     class FastDDSPublisher
     {
@@ -25,4 +24,4 @@ namespace sfg_fastdds_utils
     };
 }
 
-#include "sfg_fastdds_utils/fastdds_publisher.tpp"
+#include "sfg_fastdds_bridge/fastdds_publisher.tpp"

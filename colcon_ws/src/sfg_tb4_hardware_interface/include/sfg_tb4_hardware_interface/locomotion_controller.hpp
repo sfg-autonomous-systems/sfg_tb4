@@ -2,7 +2,7 @@
 
 #include <geometry_msgs/msg/twist.hpp>
 
-#include "sfg_fastdds_utils/fastdds_publisher.hpp"
+#include "sfg_fastdds_bridge/fastdds_publisher.hpp"
 #include "sfg_hardware_interface/locomotion_controller_base.hpp"
 
 namespace sfg_tb4_hardware_interface
@@ -16,6 +16,6 @@ namespace sfg_tb4_hardware_interface
         void apply_cmd(const geometry_msgs::msg::TwistStamped &cmd) override;
 
     private:
-        std::unique_ptr<sfg_fastdds_utils::FastDDSPublisher<geometry_msgs::msg::Twist>> m_cmd_vel_publisher;
+        std::unique_ptr<sfg_fastdds_bridge::FastDDSPublisher<geometry_msgs::msg::Twist>> m_cmd_vel_publisher;
     };
 }

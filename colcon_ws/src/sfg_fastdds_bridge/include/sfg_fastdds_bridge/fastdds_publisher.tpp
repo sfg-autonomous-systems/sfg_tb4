@@ -2,9 +2,9 @@
 
 #include <rosidl_typesupport_cpp/message_type_support.hpp>
 
-#include "sfg_fastdds_utils/fastdds_publisher.hpp"
+#include "sfg_fastdds_bridge/fastdds_publisher.hpp"
 
-namespace sfg_fastdds_utils
+namespace sfg_fastdds_bridge
 {
     template <typename MessageType>
     FastDDSPublisher<MessageType>::FastDDSPublisher(

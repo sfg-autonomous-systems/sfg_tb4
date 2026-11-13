@@ -1,4 +1,4 @@
-#include "sfg_fastdds_utils/generic_fastdds_publisher.hpp"
+#include "sfg_fastdds_bridge/generic_fastdds_publisher.hpp"
 
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <rcutils/error_handling.h>
@@ -6,7 +6,7 @@
 #include <rmw_fastrtps_shared_cpp/qos.hpp>
 #include <rosidl_typesupport_fastrtps_cpp/identifier.hpp>
 
-namespace sfg_fastdds_utils
+namespace sfg_fastdds_bridge
 {
     GenericFastDDSPublisher::GenericFastDDSPublisher(
         const std::string &topic_fqn,
@@ -16,8 +16,7 @@ namespace sfg_fastdds_utils
     {
         using namespace eprosima::fastdds::dds;
 
-        // Resolve the FastRTPS C++ type support. This handles both a rosidl_typesupport_cpp dispatch handle
-        // (loads the FastRTPS type support library on demand) and a handle that already is the FastRTPS one.
+        // Resolve the FastRTPS C++ type support.
         if (type_support_handle == nullptr)
         {
             throw std::invalid_argument("Type support handle must not be null.");
