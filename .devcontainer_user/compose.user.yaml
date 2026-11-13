@@ -16,7 +16,7 @@ services:
         read_only: true
     environment:
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID}
-  ntp_server_for_create_3:
+  ntp_server_for_create3:
     image: dockurr/chrony
     environment:
       - NTP_SERVERS=${NTP_SERVER}
