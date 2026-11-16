@@ -11,12 +11,10 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(fastdds REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(rmw REQUIRED)
-find_package(rmw_fastrtps_cpp REQUIRED)
 find_package(rcpputils REQUIRED)
+find_package(rmw_fastrtps_shared_cpp REQUIRED)
 find_package(rosidl_runtime_c REQUIRED)
-find_package(rosidl_typesupport_cpp REQUIRED)
-find_package(rosidl_typesupport_fastrtps_cpp REQUIRED)
+find_package(rosidl_runtime_cpp REQUIRED)
 find_package(sfg_utils REQUIRED)
 
 # ########################################################################################################
@@ -24,30 +22,24 @@ find_package(sfg_utils REQUIRED)
 # ########################################################################################################
 sfg_utils__add_library(${PROJECT_NAME}
   SOURCES
-  "src/generic_fastdds_publisher.cpp"
-  "src/message_type_support.cpp"
-  "src/request_type_support.cpp"
-  "src/response_type_support.cpp"
-  "src/service_type_support.cpp"
-  "src/type_support.cpp"
+  "src/detail/generic_type_support.cpp"
+  "src/detail/participant_handle.cpp"
+  "src/detail/participant_registry.cpp"
+  "src/generic_publisher.cpp"
+  "src/generic_subscription.cpp"
   DEPENDENCIES
   PUBLIC
   fastdds
   rclcpp::rclcpp
-  rmw::rmw
-  rmw_fastrtps_cpp::rmw_fastrtps_cpp
+  rosidl_runtime_cpp::rosidl_runtime_cpp
+  PRIVATE
   rcpputils::rcpputils
+  rmw_fastrtps_shared_cpp::rmw_fastrtps_shared_cpp
   rosidl_runtime_c::rosidl_runtime_c
-  rosidl_typesupport_cpp::rosidl_typesupport_cpp
-  rosidl_typesupport_fastrtps_cpp::rosidl_typesupport_fastrtps_cpp
   EXPORT_DEPENDENCIES
   fastdds
-  rmw
-  rmw_fastrtps_cpp
-  rcpputils
-  rosidl_runtime_c
-  rosidl_typesupport_cpp
-  rosidl_typesupport_fastrtps_cpp
+  rclcpp
+  rosidl_runtime_cpp
 )
 
 if(BUILD_TESTING)
