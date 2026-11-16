@@ -55,7 +55,7 @@ namespace sfg_fastdds_bridge
             Callback m_callback;
         };
 
-        // Declaration order matters for correct destruction..
+        // Declaration order matters for correct destruction.
         Listener m_listener;
         std::shared_ptr<detail::ParticipantHandle> m_participant;
         std::shared_ptr<eprosima::fastdds::dds::Topic> m_topic;
