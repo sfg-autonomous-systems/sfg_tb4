@@ -2,7 +2,6 @@
 
 #include <cstring>
 #include <limits>
-
 #include <rclcpp/serialized_message.hpp>
 
 namespace sfg_fastdds_bridge::detail
