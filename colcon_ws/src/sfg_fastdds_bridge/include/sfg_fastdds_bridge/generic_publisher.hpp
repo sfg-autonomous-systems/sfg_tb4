@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <string>
 
 #include <rclcpp/qos.hpp>
@@ -22,14 +23,14 @@ namespace sfg_fastdds_bridge
         /// @param topic_name The fully qualified ROS topic name.
         /// @param topic_type The ROS topic type.
         /// @param qos The QoS profile.
-        /// @param domain_id The DDS domain ID.
+        /// @param domain_id The DDS domain ID. Defaults to the value of ROS_DOMAIN_ID, or 0 if that is unset or empty.
         /// @throws std::invalid_argument If the topic name or type is invalid, or the topic already exists with another type.
         /// @throws std::runtime_error If a DDS entity cannot be created.
         GenericPublisher(
             const std::string &topic_name,
             const std::string &topic_type,
             const rclcpp::QoS &qos = rclcpp::SystemDefaultsQoS(),
-            uint32_t domain_id = 0);
+            std::optional<std::uint32_t> domain_id = std::nullopt);
 
         /// @brief Writes a serialized message.
         /// @param message The serialized message, including the encapsulation header, as produced by rclcpp::Serialization.

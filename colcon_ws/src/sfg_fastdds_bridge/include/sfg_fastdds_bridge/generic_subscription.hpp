@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 
 #include <fastdds/dds/subscriber/DataReaderListener.hpp>
@@ -29,7 +30,7 @@ namespace sfg_fastdds_bridge
         /// @param topic_type The ROS topic type.
         /// @param qos The QoS profile.
         /// @param callback The callback called with each received message, including the encapsulation header.
-        /// @param domain_id The DDS domain ID.
+        /// @param domain_id The DDS domain ID. Defaults to the value of ROS_DOMAIN_ID, or 0 if that is unset or empty.
         /// @throws std::invalid_argument If the callback is empty, the topic or type name is invalid, or the topic already
         /// exists with another type.
         /// @throws std::runtime_error If a DDS entity cannot be created.
@@ -38,7 +39,7 @@ namespace sfg_fastdds_bridge
             const std::string &topic_type,
             const rclcpp::QoS &qos,
             Callback callback,
-            uint32_t domain_id = 0);
+            std::optional<std::uint32_t> domain_id = std::nullopt);
         GenericSubscription(const GenericSubscription &) = delete;
         GenericSubscription(GenericSubscription &&) = delete;
         GenericSubscription &operator=(const GenericSubscription &) = delete;

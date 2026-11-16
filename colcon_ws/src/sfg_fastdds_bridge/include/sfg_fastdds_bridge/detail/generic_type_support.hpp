@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 
 #include <fastdds/dds/topic/TopicDataType.hpp>
@@ -22,7 +23,7 @@ namespace sfg_fastdds_bridge::detail
             eprosima::fastdds::dds::DataRepresentationId_t data_representation) override;
 
         bool deserialize(eprosima::fastdds::rtps::SerializedPayload_t &payload, void *data) override;
-        uint32_t calculate_serialized_size(const void *const data, eprosima::fastdds::dds::DataRepresentationId_t data_representation) override;
+        std::uint32_t calculate_serialized_size(const void *const data, eprosima::fastdds::dds::DataRepresentationId_t data_representation) override;
         void *create_data() override;
         void delete_data(void *data) override;
         bool compute_key(eprosima::fastdds::rtps::SerializedPayload_t &payload, eprosima::fastdds::rtps::InstanceHandle_t &ihandle, bool force_md5 = false) override;

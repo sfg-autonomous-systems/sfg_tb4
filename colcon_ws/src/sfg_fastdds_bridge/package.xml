@@ -9,6 +9,7 @@
     <license>MIT</license>
 
     <depend>fastdds</depend>
+    <depend>rcl</depend>
     <depend>rclcpp</depend>
     <depend>rcpputils</depend>
     <depend>rmw_fastrtps_shared_cpp</depend>

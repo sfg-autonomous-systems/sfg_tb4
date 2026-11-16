@@ -7,7 +7,7 @@
 namespace sfg_fastdds_bridge
 {
     template <typename MessageType>
-    Publisher<MessageType>::Publisher(const std::string &topic_name, const rclcpp::QoS &qos, uint32_t domain_id)
+    Publisher<MessageType>::Publisher(const std::string &topic_name, const rclcpp::QoS &qos, std::optional<std::uint32_t> domain_id)
         : m_generic_publisher(topic_name, rosidl_generator_traits::name<MessageType>(), qos, domain_id)
     {
     }

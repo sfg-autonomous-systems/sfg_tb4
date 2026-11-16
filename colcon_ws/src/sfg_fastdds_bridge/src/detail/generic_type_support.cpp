@@ -30,7 +30,7 @@ namespace sfg_fastdds_bridge::detail
             return false;
         }
         std::memcpy(payload.data, message.buffer, message.buffer_length);
-        payload.length = static_cast<uint32_t>(message.buffer_length);
+        payload.length = static_cast<std::uint32_t>(message.buffer_length);
         return true;
     }
 
@@ -48,15 +48,15 @@ namespace sfg_fastdds_bridge::detail
         return true;
     }
 
-    uint32_t GenericTypeSupport::calculate_serialized_size(const void *const data, eprosima::fastdds::dds::DataRepresentationId_t)
+    std::uint32_t GenericTypeSupport::calculate_serialized_size(const void *const data, eprosima::fastdds::dds::DataRepresentationId_t)
     {
         const auto size = static_cast<const rclcpp::SerializedMessage *>(data)->size();
 
-        if (size > std::numeric_limits<uint32_t>::max())
+        if (size > std::numeric_limits<std::uint32_t>::max())
         {
             return 0;
         }
-        return static_cast<uint32_t>(size);
+        return static_cast<std::uint32_t>(size);
     }
 
     void *GenericTypeSupport::create_data()

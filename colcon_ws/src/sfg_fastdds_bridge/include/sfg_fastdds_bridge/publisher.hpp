@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <optional>
 #include <string>
 
 #include <rclcpp/qos.hpp>
@@ -18,12 +19,12 @@ namespace sfg_fastdds_bridge
     public:
         /// @param topic_name The fully qualified ROS topic name.
         /// @param qos The QoS profile.
-        /// @param domain_id The DDS domain ID.
+        /// @param domain_id The DDS domain ID. Defaults to the value of ROS_DOMAIN_ID, or 0 if that is unset or empty.
         /// @throws See GenericPublisher.
         explicit Publisher(
             const std::string &topic_name,
             const rclcpp::QoS &qos = rclcpp::SystemDefaultsQoS(),
-            uint32_t domain_id = 0);
+            std::optional<std::uint32_t> domain_id = std::nullopt);
 
         /// @brief Serializes and writes a message.
         /// @param msg The message to publish.

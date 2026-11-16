@@ -4,6 +4,7 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <optional>
 
 #include "sfg_fastdds_bridge/detail/participant_handle.hpp"
 
@@ -22,10 +23,10 @@ namespace sfg_fastdds_bridge::detail
         static ParticipantRegistry &instance();
 
         /// @brief Returns the participant handle of the given domain, creating it if necessary.
-        /// @param domain_id The DDS domain ID.
+        /// @param domain_id The DDS domain ID. Defaults to the value of ROS_DOMAIN_ID, or 0 if that is unset or empty.
         /// @return The shared participant handle.
-        /// @throws std::runtime_error If the participant cannot be created.
-        std::shared_ptr<ParticipantHandle> get(uint32_t domain_id);
+        /// @throws std::runtime_error If ROS_DOMAIN_ID is invalid or the participant cannot be created.
+        std::shared_ptr<ParticipantHandle> get(std::optional<std::uint32_t> domain_id);
 
     private:
         ParticipantRegistry() = default;
@@ -36,6 +37,6 @@ namespace sfg_fastdds_bridge::detail
         ~ParticipantRegistry() = default;
 
         std::mutex m_mutex;
-        std::map<uint32_t, std::weak_ptr<ParticipantHandle>> m_weak_participants;
+        std::map<std::uint32_t, std::weak_ptr<ParticipantHandle>> m_weak_participants;
     };
 }

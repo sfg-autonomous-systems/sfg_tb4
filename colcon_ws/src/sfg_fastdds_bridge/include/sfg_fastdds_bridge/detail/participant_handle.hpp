@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <functional>
 #include <memory>
 #include <mutex>
@@ -31,7 +32,7 @@ namespace sfg_fastdds_bridge::detail
     public:
         /// @param domain_id The DDS domain ID.
         /// @throws std::runtime_error If the participant or its containers cannot be created.
-        explicit ParticipantHandle(uint32_t domain_id);
+        explicit ParticipantHandle(std::uint32_t domain_id);
         ParticipantHandle(const ParticipantHandle &) = delete;
         ParticipantHandle(ParticipantHandle &&) = delete;
         ParticipantHandle &operator=(const ParticipantHandle &) = delete;
