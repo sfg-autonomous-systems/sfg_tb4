@@ -3,19 +3,17 @@
 <package format="3">
     <name>sfg_fastdds_bridge</name>
     <version>0.0.0</version>
-    <description>Bridge for publishing ROS messages to FastDDS-only peers independent of the active
+    <description>Bridge for exchanging ROS messages with Fast DDS-only peers independent of the active
         RMW.</description>
     <maintainer email="constantin.blessing@hs-esslingen.de">Constantin Blessing</maintainer>
     <license>MIT</license>
 
     <depend>fastdds</depend>
     <depend>rclcpp</depend>
-    <depend>rmw</depend>
-    <depend>rmw_fastrtps_cpp</depend>
     <depend>rcpputils</depend>
+    <depend>rmw_fastrtps_shared_cpp</depend>
     <depend>rosidl_runtime_c</depend>
-    <depend>rosidl_typesupport_cpp</depend>
-    <depend>rosidl_typesupport_fastrtps_cpp</depend>
+    <depend>rosidl_runtime_cpp</depend>
     <depend>sfg_utils</depend>
 
     <buildtool_depend>ament_cmake</buildtool_depend>
