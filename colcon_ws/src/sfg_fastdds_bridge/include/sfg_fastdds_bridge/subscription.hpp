@@ -33,8 +33,6 @@ namespace sfg_fastdds_bridge
             const rclcpp::QoS &qos,
             Callback callback,
             uint32_t domain_id = 0);
-
-        // Not copyable or movable: m_generic_subscription calls back into this instance.
         Subscription(const Subscription &) = delete;
         Subscription(Subscription &&) = delete;
         Subscription &operator=(const Subscription &) = delete;
@@ -43,7 +41,7 @@ namespace sfg_fastdds_bridge
     private:
         /// @brief Deserializes a received message and passes it to the user callback.
         /// @param serialized_msg The received message, including the encapsulation header.
-        /// @throws rclcpp::exceptions::RCLError If the message cannot be deserialized. GenericSubscription logs it.
+        /// @throws rclcpp::exceptions::RCLError If the message cannot be deserialized.
         void on_message(std::shared_ptr<const rclcpp::SerializedMessage> serialized_msg);
 
         Callback m_callback;

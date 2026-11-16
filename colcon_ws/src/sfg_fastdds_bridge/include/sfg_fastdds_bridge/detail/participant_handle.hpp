@@ -38,8 +38,8 @@ namespace sfg_fastdds_bridge::detail
         ParticipantHandle &operator=(ParticipantHandle &&) = delete;
         ~ParticipantHandle();
 
-        /// @brief Returns the topic for the given ROS topic, creating it (and registering its type) if it does not exist
-        /// yet. The topic is deleted once the last returned shared_ptr is released.
+        /// @brief Returns the topic for the given ROS topic, creating it (and registering its type) if it does not exist yet.
+        /// The topic is deleted once the last returned shared_ptr is released.
         /// @param topic_name The fully qualified ROS topic name.
         /// @param topic_type The ROS topic type.
         /// @param qos The QoS profile, which determines whether the ROS topic prefix is applied.
