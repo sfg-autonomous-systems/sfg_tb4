@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 
 #include <rclcpp/qos.hpp>
@@ -26,13 +27,13 @@ namespace sfg_fastdds_bridge
         /// @param topic_name The fully qualified ROS topic name.
         /// @param qos The QoS profile.
         /// @param callback The callback called with each received message.
-        /// @param domain_id The DDS domain ID.
+        /// @param domain_id The DDS domain ID. Defaults to the value of ROS_DOMAIN_ID, or 0 if that is unset or empty.
         /// @throws See GenericSubscription.
         Subscription(
             const std::string &topic_name,
             const rclcpp::QoS &qos,
             Callback callback,
-            uint32_t domain_id = 0);
+            std::optional<std::uint32_t> domain_id = std::nullopt);
         Subscription(const Subscription &) = delete;
         Subscription(Subscription &&) = delete;
         Subscription &operator=(const Subscription &) = delete;

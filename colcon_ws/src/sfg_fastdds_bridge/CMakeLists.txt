@@ -10,6 +10,7 @@ endif()
 # ########################################################################################################
 find_package(ament_cmake REQUIRED)
 find_package(fastdds REQUIRED)
+find_package(rcl REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rcpputils REQUIRED)
 find_package(rmw_fastrtps_shared_cpp REQUIRED)
@@ -33,6 +34,7 @@ sfg_utils__add_library(${PROJECT_NAME}
   rclcpp::rclcpp
   rosidl_runtime_cpp::rosidl_runtime_cpp
   PRIVATE
+  rcl::rcl
   rcpputils::rcpputils
   rmw_fastrtps_shared_cpp::rmw_fastrtps_shared_cpp
   rosidl_runtime_c::rosidl_runtime_c

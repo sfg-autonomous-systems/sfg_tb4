@@ -88,7 +88,7 @@ namespace sfg_fastdds_bridge::detail
         }
     }
 
-    ParticipantHandle::ParticipantHandle(uint32_t domain_id) : m_factory(DomainParticipantFactory::get_shared_instance())
+    ParticipantHandle::ParticipantHandle(std::uint32_t domain_id) : m_factory(DomainParticipantFactory::get_shared_instance())
     {
         // PARTICIPANT_QOS_DEFAULT picks up the default profile of FASTDDS_DEFAULT_PROFILES_FILE, if set.
         m_participant = m_factory->create_participant(domain_id, PARTICIPANT_QOS_DEFAULT);

@@ -8,11 +8,9 @@ namespace sfg_tb4_hardware_interface
     {
         using namespace sfg_utils::fqn;
 
-        auto ros_domain_id = std::getenv("ROS_DOMAIN_ID");
         m_cmd_vel_publisher = std::make_unique<sfg_fastdds_bridge::Publisher<geometry_msgs::msg::Twist>>(
             get_node_base_interface()->resolve_topic_or_service_name(RosFqnBuilder().component(Component::Create3).resource(Resource::CmdVel).build(RosFqnSegment::Component, RosFqnSegment::Resource), false),
-            rclcpp::SensorDataQoS(),
-            ros_domain_id ? std::stoul(ros_domain_id) : 0);
+            rclcpp::SensorDataQoS());
 
         RCLCPP_INFO(get_logger(), "Started locomotion controller.");
     }
