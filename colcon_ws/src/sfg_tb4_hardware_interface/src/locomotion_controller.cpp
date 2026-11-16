@@ -1,7 +1,5 @@
 #include "sfg_tb4_hardware_interface/locomotion_controller.hpp"
 
-#include <geometry_msgs/msg/detail/twist__rosidl_typesupport_fastrtps_cpp.hpp>
-
 #include "sfg_utils/fqn/ros_fqn_builder.hpp"
 
 namespace sfg_tb4_hardware_interface
@@ -11,9 +9,8 @@ namespace sfg_tb4_hardware_interface
         using namespace sfg_utils::fqn;
 
         auto ros_domain_id = std::getenv("ROS_DOMAIN_ID");
-        m_cmd_vel_publisher = std::make_unique<sfg_fastdds_utils::FastDDSPublisher>(
+        m_cmd_vel_publisher = std::make_unique<sfg_fastdds_bridge::FastDDSPublisher<geometry_msgs::msg::Twist>>(
             get_node_base_interface()->resolve_topic_or_service_name(RosFqnBuilder().component(Component::Create3).resource(Resource::CmdVel).build(RosFqnSegment::Component, RosFqnSegment::Resource), false),
-            rosidl_typesupport_fastrtps_cpp__get_message_type_support_handle__geometry_msgs__msg__Twist(),
             rclcpp::SensorDataQoS(),
             ros_domain_id ? std::stoul(ros_domain_id) : 0);
 
@@ -25,6 +22,6 @@ namespace sfg_tb4_hardware_interface
         geometry_msgs::msg::Twist msg;
         msg.linear = cmd.twist.linear;
         msg.angular = cmd.twist.angular;
-        m_cmd_vel_publisher->publish(&msg);
+        m_cmd_vel_publisher->publish(msg);
     }
 }

@@ -1,19 +1,33 @@
-#include "sfg_fastdds_utils/fastdds_publisher.hpp"
+#include "sfg_fastdds_bridge/generic_fastdds_publisher.hpp"
 
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
+#include <rcutils/error_handling.h>
 #include <rmw_fastrtps_cpp/MessageTypeSupport.hpp>
 #include <rmw_fastrtps_shared_cpp/qos.hpp>
+#include <rosidl_typesupport_fastrtps_cpp/identifier.hpp>
 
-namespace sfg_fastdds_utils
+namespace sfg_fastdds_bridge
 {
-    FastDDSPublisher::FastDDSPublisher(
+    GenericFastDDSPublisher::GenericFastDDSPublisher(
         const std::string &topic_fqn,
         const rosidl_message_type_support_t *type_support_handle,
         const rclcpp::QoS &qos,
         uint32_t domain_id)
-        : m_type_support_handle(type_support_handle)
     {
         using namespace eprosima::fastdds::dds;
+
+        // Resolve the FastRTPS C++ type support.
+        if (type_support_handle == nullptr)
+        {
+            throw std::invalid_argument("Type support handle must not be null.");
+        }
+        m_type_support_handle = get_message_typesupport_handle(type_support_handle, rosidl_typesupport_fastrtps_cpp::typesupport_identifier);
+
+        if (m_type_support_handle == nullptr)
+        {
+            rcutils_reset_error();
+            throw std::runtime_error("Failed to resolve the FastRTPS C++ type support for the given message type.");
+        }
 
         // Setup type support.
         auto callbacks = static_cast<const message_type_support_callbacks_t *>(m_type_support_handle->data);
@@ -56,7 +70,7 @@ namespace sfg_fastdds_utils
         m_writer = m_publisher->create_datawriter(m_topic, writer_qos);
     }
 
-    FastDDSPublisher::~FastDDSPublisher()
+    GenericFastDDSPublisher::~GenericFastDDSPublisher()
     {
         if (m_publisher && m_writer)
         {
@@ -79,7 +93,7 @@ namespace sfg_fastdds_utils
         }
     }
 
-    bool FastDDSPublisher::publish(const void *msg)
+    bool GenericFastDDSPublisher::publish(const void *msg)
     {
         auto callbacks = static_cast<const message_type_support_callbacks_t *>(m_type_support_handle->data);
         rmw_fastrtps_shared_cpp::SerializedData serialized_data;
