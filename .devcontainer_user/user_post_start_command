@@ -9,6 +9,7 @@ sfg_tb4__get_agent_name() {
     if [[ ! -x "${binary}" ]]; then
         cat <<'EOF' >"${wrapper}"
 #include <iostream>
+
 #include "sfg_utils/agent_utils.hpp"
 
 int main() 
@@ -25,7 +26,6 @@ int main()
     return 0;
 }
 EOF
-
         # Compile the wrapper silently.
         if ! g++ -std=c++17 -I"${header_dir}" "${wrapper}" "${source}" -o "${binary}" 2>"/dev/null"; then
             echo "Error: Failed to JIT compile '${source}'" >&2
