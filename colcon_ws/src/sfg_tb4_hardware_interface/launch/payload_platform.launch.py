@@ -117,6 +117,23 @@ def generate_launch_description():
         ],
     )
 
+    tracker_head_node = ComposableNode(
+        package="sfg_hardware_interface",
+        plugin="sfg_hardware_interface::ViconLocalizer",
+        namespace=local_namespace.build(RosFqnSegment.Scope, RosFqnSegment.Agent),
+        name="vicon_localizer",
+        parameters=[
+            PathJoinSubstitution(
+                [
+                    FindPackageShare(package_name),
+                    "config",
+                    "tracker_head.yaml",
+                ]
+            ),
+        ],
+        extra_arguments=[{"use_intra_process_comms": True}],
+    )
+
     return launch.LaunchDescription(
         [
             ComposableNodeContainer(
@@ -130,6 +147,7 @@ def generate_launch_description():
                 composable_node_descriptions=[
                     camera_back_node,
                     lidar_right_node,
+                    tracker_head_node,
                 ],
             ),
         ]
