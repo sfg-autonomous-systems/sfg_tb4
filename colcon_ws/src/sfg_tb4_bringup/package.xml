@@ -12,6 +12,7 @@
     <exec_depend>rclcpp_components</exec_depend>
     <exec_depend>ros2launch</exec_depend>
     <exec_depend>sfg_agent</exec_depend>
+    <exec_depend>sfg_nav2</exec_depend>
     <exec_depend>sfg_tb4_hardware_interface</exec_depend>
     <exec_depend>sfg_utils</exec_depend>
 
