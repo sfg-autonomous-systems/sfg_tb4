@@ -49,6 +49,7 @@ def generate_launch_description():
                     ]
                 ),
             ),
+            ("params_package_name", package_name),
             (
                 "use_sim_time",
                 "False",
